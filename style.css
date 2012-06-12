@@ -44,24 +44,9 @@ div.ui-slider {
 
 /*SVG styles*/
 
-#numRatingsHist line,
-#ratingsHist line,
-#yearsHist line {
-	stroke: #ccc;
-	stroke-width: 1px;
-	shape-rendering: crispEdges;
-}
-
 line.path {
 	stroke: black;
 	shape-rendering: ;
-}
-
-circle.dot {
-	fill: #c3243d;
-	stroke: #ffffff;
-	stroke-width: 2px;
-	opacity: 0.5;
 }
 
 .back {
@@ -71,26 +56,3 @@ circle.dot {
   	shape-rendering: crispEdges;
 }
 
-.axis path, .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.grid path, .grid line {
-	fill: none;
-  stroke: #ddd;
-  shape-rendering: crispEdges;
-}
-
-.grid text {
-	opacity: 0.0;
-}
-
-.major path, .major line{
-	stroke: #999;
-}
-
-rect.hist-bar {
-	fill: steelblue;
-}

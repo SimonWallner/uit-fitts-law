@@ -1,6 +1,10 @@
-var width = 620;
-var height = 400;
-var margin = {top: 30, right: 30, bottom: 30, left: 30};
+var testDimension = {top: 30, right: 30, bottom: 30, left: 30};
+testDimension.width = 700 - (testDimension.left + testDimension.right);
+testDimension.height = 400 - (testDimension.top + testDimension.bottom);
+
+var plotPositionDimension = {top: 30, right: 30, bottom: 30, left: 30};
+plotPositionDimension.width = 540 - (plotPositionDimension.left + plotPositionDimension.right);
+plotPositionDimension.height = 200 - (plotPositionDimension.top + plotPositionDimension.bottom);
 
 
 
@@ -12,9 +16,9 @@ var fittsTest = {
 	active: false,
 	
 	generateTarget: function() {
-		this.target.x = randomAB(margin.left, width);
-		this.target.y = randomAB(margin.top, height);
-		svg.append('svg:circle')
+		this.target.x = randomAB(testDimension.left, testDimension.width);
+		this.target.y = randomAB(testDimension.top, testDimension.height);
+		testAreaSVG.append('svg:circle')
 			.attr('id', 'target')
 			.attr('cx', this.target.x)
 			.attr('cy', this.target.y)
@@ -25,23 +29,31 @@ var fittsTest = {
 	},
 	
 	removeTarget: function() {
-		svg.selectAll('#target').remove();
+		testAreaSVG.selectAll('#target').remove();
 		this.active = false;
+		this.currentPath = [];
 	},
 	
-	hitTarget: function(x, y) {
-		var dx = this.target.x - x;
-		var dy = this.target.y - y;
+	mouseClicked: function(x, y) {
+		
+		if (distance({x: x, y: y}, this.target) < this.target.r) {
+			this.addDataPoint({start: this.start, target: this.target, path: this.currentPath})
+			this.removeTarget();
 
-		return (Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)) < this.target.r);
+
+			this.generateTarget();			
+			this.last = {x: x, y: y, time: (new Date).getTime()};
+			this.start = this.last;
+			this.currentPath.push(this.last);
+		}
 	},
 	
 	mouseMoved: function(x, y) {
 		if (this.active) {
-			var newPoint = {x: x, y: y}
+			var newPoint = {x: x, y: y, time: (new Date).getTime()}
 			this.currentPath.push(newPoint)
 			
-			svg.append('svg:line')
+			testAreaSVG.append('svg:line')
 				.attr('class', 'path')
 				.attr('x1', this.last.x)
 				.attr('x2', newPoint.x)
@@ -49,16 +61,60 @@ var fittsTest = {
 				.attr('y2', newPoint.y)
 				.transition()
 					.duration(2000)
-					.style('stroke-opacity', 0)
-					.remove();
+					.style('stroke-opacity', .1);
 				
 			this.last = newPoint;
+		}
+	},
+	
+	addDataPoint: function(data) {
+		var a = data.start;
+		var b = data.target;
+		var path = data.path;
+		
+		var last = {da: 0, dq: 0};
+		
+		for (var i = 0; i < path.length; i++) {
+			var q = project(a, b, path[i]);
+			var da = distance(q, a);
+			var dq = distance(q, path[i]);
+			
+			if (last) {
+				plotPositionSVG.append('svg:line')
+					.attr('class', 'path')
+					.attr('x1', last.da)
+					.attr('x2', da)
+					.attr('y1', last.dq)
+					.attr('y2', dq)
+					.transition()
+						.duration(2000)
+						.style('stroke-opacity', .1);	
+			}
+			
+			last.da = da;
+			last.dq = dq;
 		}
 	}
 }
 
 function randomAB(a, b) {
 	return a + Math.random() * b;
+}
+
+/**
+ * Project a point q onto the line p0-p1
+ */
+function project(p0, p1, q) {
+	var p = {x: 0, y: 0};
+	p.x = -q.x * (p1.x - p0.x) - q.y * (p1.y - p0.y);
+	p.y = -p0.y * (p1.x - p0.x) + p0.x * (p1.y - p0.y);
+	return p;
+}
+
+function distance(a, b) {
+	var dx = a.x - b.x;
+	var dy = a.y - b.y;
+	return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 }
 
 function mouseMoved()
@@ -69,31 +125,41 @@ function mouseMoved()
 
 function mouseClicked()
 {
-	var mouse = d3.svg.mouse(this);
-	if (fittsTest.hitTarget(mouse[0], mouse[1])) {
-		fittsTest.removeTarget();
-		fittsTest.last = {x: mouse[0], y: mouse[1]};
-		fittsTest.generateTarget();
-	}
+	var m = d3.svg.mouse(this);
+	fittsTest.mouseClicked(m[0], m[1]);
 }
 
 
 
 
 
-svg = d3.select('#test-area').append('svg')
-	.attr('width', width + margin.left + margin.right)
-	.attr('height', height + margin.top + margin.bottom)
+testAreaSVG = d3.select('#test-area').append('svg')
+	.attr('width', testDimension.width + testDimension.left + testDimension.right)
+	.attr('height', testDimension.height + testDimension.top + testDimension.bottom)
 	.style('pointer-events', 'all')
     .on('mousemove', mouseMoved)
 	.on('mousedown', mouseClicked);
 
-svg.append('rect')
+testAreaSVG.append('rect')
 	.attr('cx', 0)
 	.attr('cy', 0)
-	.attr('width', width + margin.left + margin.right)
-	.attr('height', height + margin.top + margin.bottom)
+	.attr('width', testDimension.width + testDimension.left + testDimension.right)
+	.attr('height', testDimension.height + testDimension.top + testDimension.bottom)
 	.attr('class', 'back');
 
+plotPositionSVG = d3.select('#plot-positions').append('svg')
+	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
+	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
+	.style('pointer-events', 'all')
+    .on('mousemove', mouseMoved)
+	.on('mousedown', mouseClicked);
+
+plotPositionSVG.append('rect')
+	.attr('cx', 0)
+	.attr('cy', 0)
+	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
+	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
+	.attr('class', 'back');
 
 fittsTest.generateTarget();
+fittsTest.active = false;
