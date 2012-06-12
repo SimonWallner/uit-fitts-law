@@ -52,6 +52,10 @@ div.ui-slider {
 	shape-rendering: crispEdges;
 }
 
+line.path {
+	stroke: black;
+	shape-rendering: ;
+}
 
 circle.dot {
 	fill: #c3243d;
