@@ -1,4 +1,4 @@
-# Visualising Fitt's Law with D3
+# Visualising Fitts' Law with D3
 
 More details to follow.
 
