@@ -3,7 +3,7 @@ testDimension.width = 700 - (testDimension.left + testDimension.right);
 testDimension.height = 400 - (testDimension.top + testDimension.bottom);
 
 var plotPositionDimension = {top: 30, right: 30, bottom: 30, left: 30};
-plotPositionDimension.width = 540 - (plotPositionDimension.left + plotPositionDimension.right);
+plotPositionDimension.width = 700 - (plotPositionDimension.left + plotPositionDimension.right);
 plotPositionDimension.height = 200 - (plotPositionDimension.top + plotPositionDimension.bottom);
 
 
@@ -68,31 +68,33 @@ var fittsTest = {
 	},
 	
 	addDataPoint: function(data) {
-		var a = data.start;
-		var b = data.target;
+		var A = data.start;
+		var B = data.target;
 		var path = data.path;
 		
-		var last = {da: 0, dq: 0};
+		var last = {x: 0, y: 0};
 		
 		for (var i = 0; i < path.length; i++) {
-			var q = project(a, b, path[i]);
-			var da = distance(q, a);
-			var dq = distance(q, path[i]) * isLeft(a, b, path[i]);
+			var p = path[i];
+			
+			var q = project(A, B, p);
+			var x = distance(q, A) * q.t;
+			var y = distance(q, p) * isLeft(A, B, p);
 			
 			if (last) {
 				plotPositionGroup.append('svg:line')
 					.attr('class', 'path')
-					.attr('x1', last.da)
-					.attr('x2', da)
-					.attr('y1', last.dq)
-					.attr('y2', dq)
+					.attr('x1', last.x)
+					.attr('x2', x)
+					.attr('y1', last.y)
+					.attr('y2', y)
 					.transition()
 						.duration(2000)
 						.style('stroke-opacity', .1);	
 			}
 			
-			last.da = da;
-			last.dq = dq;
+			last.x = x;
+			last.y = y;
 		}
 	}
 }
@@ -115,7 +117,8 @@ function project(A, B, p) {
 		var Ap = minus(p, A);
 		var t = dot(Ap, AB) / AB_squared;
 		return {x: A.x + t * AB.x,
-				y: A.y + t * AB.y}
+				y: A.y + t * AB.y,
+				t: t}
 	}
 }
 
