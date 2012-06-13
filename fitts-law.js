@@ -1,39 +1,64 @@
+// "use strict";
+
+function brk() {
+	1 + 1;
+}
+
+
 var testDimension = {top: 30, right: 30, bottom: 30, left: 30};
-testDimension.width = 700 - (testDimension.left + testDimension.right);
+testDimension.width = 620 - (testDimension.left + testDimension.right);
 testDimension.height = 400 - (testDimension.top + testDimension.bottom);
 
 var plotPositionDimension = {top: 30, right: 30, bottom: 30, left: 30};
-plotPositionDimension.width = 700 - (plotPositionDimension.left + plotPositionDimension.right);
-plotPositionDimension.height = 200 - (plotPositionDimension.top + plotPositionDimension.bottom);
+plotPositionDimension.width = 300 - (plotPositionDimension.left + plotPositionDimension.right);
+plotPositionDimension.height = 198 - (plotPositionDimension.top + plotPositionDimension.bottom);
+
+var plotVelocitiesDimension = {top: 30, right: 30, bottom: 30, left: 30};
+plotVelocitiesDimension.width = 300 - (plotVelocitiesDimension.left + plotVelocitiesDimension.right);
+plotVelocitiesDimension.height = 198 - (plotVelocitiesDimension.top + plotVelocitiesDimension.bottom);
 
 var plotHitsDimension = {top: 15, right: 15, bottom: 15, left: 15};
 plotHitsDimension.width = 140 - (plotHitsDimension.left + plotHitsDimension.right);
 plotHitsDimension.height = 140 - (plotHitsDimension.top + plotHitsDimension.bottom);
 
-var plotVelocitiesDimension = {top: 30, right: 30, bottom: 30, left: 30};
-plotVelocitiesDimension.width = 700 - (plotVelocitiesDimension.left + plotVelocitiesDimension.right);
-plotVelocitiesDimension.height = 300 - (plotVelocitiesDimension.top + plotVelocitiesDimension.bottom);
+var plotScatterDimension = {top: 30, right: 30, bottom: 30, left: 50};
+plotScatterDimension.width = 300 - (plotScatterDimension.left + plotScatterDimension.right);
+plotScatterDimension.height = 200 - (plotScatterDimension.top + plotScatterDimension.bottom);
 
 
-var rHit = function(r, rTarget) {
+
+function rHit(r, rTarget) {
 	return ((plotHitsDimension.width / 2) / rTarget) * r;
-}
+};
 
 var maxV = 1; // pixel/ms
-var v = function(v) {
+function v(v) {
 	var colour = 'rgb(' + clampInt(0, 255, (v / maxV) * 255) + ', 0, 0)';
-	console.log(colour);
 	return colour;
-}
+};
 
+var scatterX = d3.scale.linear()
+	.domain([0, 5])
+	.range([0, plotScatterDimension.width]);
+
+var scatterY = d3.scale.linear()
+	.domain([3000, 0])
+	.range([0, plotScatterDimension.height]);
 
 
 var fittsTest = {
 	target: {x: 0, y: 0, r: 10},
-	start: {x: 0, y: 0, time: 0},
-	last: {x: 0, y: 0},
+	start: {x: 0, y: 0, t: 0},
+	last: {},
+	
 	currentPath: [],
 	active: false,
+	
+	// contains the test data
+	// i.e. tupels with amplitude, width, time, start, target, hit, ID
+	data: [],
+	sumID: 0,
+	sumTime: 0,
 	
 	generateTarget: function() {
 		this.target.x = randomAB(testDimension.left, testDimension.width);
@@ -60,7 +85,7 @@ var fittsTest = {
 			this.addDataPoint({start: this.start,
 							   target: this.target,
 							   path: this.currentPath,
-							   hit: {x: x, y: y}})
+							   hit: {x: x, y: y, t: (new Date).getTime()}});
 			this.removeTarget();
 
 
@@ -101,6 +126,66 @@ var fittsTest = {
 	},
 	
 	addDataPoint: function(data) {
+		// add point to data array for plotting into ID/time scatter plot
+		
+		var dt = data.hit.t - data.start.t;
+		var id = shannon(distance(data.target, data.start), data.target.r * 2);
+		
+		if (dt < 3000) { // skip if obvious outlier
+			this.data.push({time: dt,
+					           ID: id});
+			this.sumID += id;
+			this.sumTime += dt;
+				
+			var circles = scatterGroup.selectAll('circle')
+						.data(this.data);
+					
+			circles.enter()
+				.append('circle')
+					.attr('cx', function(d) { return scatterX(d.ID); })
+					.attr('cy', function(d) { return scatterY(d.time); })
+					.attr('r', 0)
+						.transition()
+							.duration(200)
+							.ease('bounce')
+							.attr('r', 3);
+			
+			// regression, yeay!
+			var mID = this.sumID / this.data.length;
+			var mt = this.sumTime / this.data.length;
+			var ssxy = 0;
+			var ssxx = 0;
+			
+			for (var i = 0; i < this.data.length; i++) {
+				ssxy += (this.data[i].ID - mID) * (this.data[i].time - mt);
+				ssxx += Math.pow(this.data[i].ID - mID, 2);
+			}			
+			
+			var b = (ssxy / ssxx) || 0;
+			var a = mt - b * mID;
+			
+			var setValues = function(d) {
+				return d
+					.attr('x1', 0)
+					.attr('x2', plotScatterDimension.width)
+					.attr('y1', function(d) { return scatterY(d.y1); })
+					.attr('y2', function(d) { return scatterY(d.y2); })
+			}
+			
+			var regression = scatterGroup.selectAll('line.regression')
+				.data([{y1:a, y2: a + b * 5}]);
+			
+			regression.enter().append('line')
+				.attr('class', 'regression')
+				.call(setValues);
+			
+			regression.transition()
+				.call(setValues);
+			
+			
+			
+		}
+		
 		var A = data.start;
 		var B = data.target;
 		var path = data.path;
@@ -109,15 +194,16 @@ var fittsTest = {
 		plotHitsGroup.append('circle')
 			.attr('cx', rHit(hit.x, data.target.r))
 			.attr('cy', rHit(hit.y, data.target.r))
-			.attr('r', 4)
+			.attr('r', 6)
 			.style('fill', 'red')
 			.style('opacity', 1)
 			.transition()
 				.duration(1000)
+					.ease('linear')
 					.attr('r', 2)
-					.style('opacity', 0.5)
+					.style('opacity', 0.5);
 		
-		var last = {x: 0, y: 0, t: 0, v: 0};
+		var last = {};
 		for (var i = 0; i < path.length; i++) {
 			var p = path[i];
 			
@@ -126,14 +212,14 @@ var fittsTest = {
 			var y = distance(q, p) * isLeft(A, B, p);
 			
 			var dt = p.t - last.t;
-			var dist = distance(last, {x: x, y: y})
+			var dist = distance(last, {x: x, y: y});
 			var speed = dist;// / dt;
 			
 			if (last) {
 				plotPositionGroup.append('svg:line')
 					.attr('class', 'path')
-					.attr('x1', last.x)
-					.attr('x2', x)
+					.attr('x1', last.x / 2)
+					.attr('x2', x / 2)
 					.attr('y1', last.y)
 					.attr('y2', y)
 					.style('stroke', v(speed))
@@ -143,10 +229,10 @@ var fittsTest = {
 				
 				plotVelocitiesGroup.append('svg:line')
 					.attr('class', 'path')
-					.attr('x1', last.x)
-					.attr('x2', x)
-					.attr('y1', -last.v * 5)
-					.attr('y2', -speed * 5)
+					.attr('x1', last.x / 2)
+					.attr('x2', x / 2)
+					.attr('y1', -last.v * 2)
+					.attr('y2', -speed * 2)
 					.transition()
 						.duration(2000)
 						.style('stroke-opacity', .1);
@@ -159,7 +245,7 @@ var fittsTest = {
 			last.v = speed;
 		}
 	}
-}
+};
 
 function randomAB(a, b) {
 	return a + Math.random() * b;
@@ -173,14 +259,14 @@ function project(A, B, p) {
 	var AB = minus(B, A);
 	var AB_squared = dot(AB, AB);
 	if (AB_squared == 0) {
-		return A
+		return A;
 	}
 	else {
 		var Ap = minus(p, A);
 		var t = dot(Ap, AB) / AB_squared;
 		return {x: A.x + t * AB.x,
 				y: A.y + t * AB.y,
-				t: t}
+				t: t};
 	}
 }
 
@@ -232,6 +318,9 @@ function clampInt(lower, upper, x) {
 	return Math.min(upper, Math.max(lower, Math.floor(x)));
 }
 
+function shannon(A, W) {
+	return Math.log(A / W + 1) / Math.log(2);
+}
 
 testAreaSVG = d3.select('#test-area').append('svg')
 	.attr('width', testDimension.width + testDimension.left + testDimension.right)
@@ -249,7 +338,7 @@ testAreaSVG.append('rect')
 
 plotPositionSVG = d3.select('#plot-positions').append('svg')
 	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
-	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
+	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom);
 
 plotPositionSVG.append('rect')
 	.attr('cx', 0)
@@ -316,8 +405,46 @@ plotVelocitiesSVG.append('rect')
 plotVelocitiesGroup = plotVelocitiesSVG.append('g')
 	.attr('transform', 'translate('+ (plotVelocitiesDimension.left) + ', ' + (plotVelocitiesDimension.top + plotVelocitiesDimension.height) + ')');
 
-	
 
+
+scatterSVG = d3.select('#plot-scatter').append('svg')
+	.attr('width', plotScatterDimension.width + plotScatterDimension.left + plotScatterDimension.right)
+	.attr('height', plotScatterDimension.height + plotScatterDimension.top + plotScatterDimension.bottom)
+
+scatterSVG.append('rect')
+	.attr('cx', 0)
+	.attr('cy', 0)
+	.attr('width', plotScatterDimension.width + plotScatterDimension.left + plotScatterDimension.right)
+	.attr('height', plotScatterDimension.height + plotScatterDimension.top + plotScatterDimension.bottom)
+	.attr('class', 'back');
+
+scatterGroup = scatterSVG.append('g')
+	.attr('transform', 'translate('+ (plotScatterDimension.left) + ',' + plotScatterDimension.top + ' )');
+
+
+
+// define Axes.
+var xAxis = d3.svg.axis()
+	.scale(scatterX)
+	.ticks(7)
+	.tickSize(6, 3, 0);
+
+var yAxis = d3.svg.axis()
+	.scale(scatterY)
+	.ticks(10)
+	.tickSize(6, 3, 6)
+
+
+// print axes
+scatterGroup.append("g")
+    .attr("class", "axis")
+	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
+    .call(xAxis.tickSize(plotScatterDimension.height).orient("bottom"));
+
+scatterGroup.append("g")
+    .attr("class", "axis")
+	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
+    .call(yAxis.tickSize(-plotScatterDimension.width).orient("left"));
 
 fittsTest.generateTarget();
 fittsTest.active = false;

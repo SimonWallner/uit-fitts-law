@@ -56,3 +56,24 @@ line.path {
   	shape-rendering: crispEdges;
 }
 
+#plot-scatter circle {
+	fill: red;
+	opacity: 0.5;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.grid path, .grid line {
+	fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+line.regression {
+	stroke: red;
+	stroke-width:2px;
+}
