@@ -77,10 +77,10 @@ var fittsTest = {
 		for (var i = 0; i < path.length; i++) {
 			var q = project(a, b, path[i]);
 			var da = distance(q, a);
-			var dq = distance(q, path[i]);
+			var dq = distance(q, path[i]) * isLeft(a, b, path[i]);
 			
 			if (last) {
-				plotPositionSVG.append('svg:line')
+				plotPositionGroup.append('svg:line')
 					.attr('class', 'path')
 					.attr('x1', last.da)
 					.attr('x2', da)
@@ -137,6 +137,11 @@ function dot(a, b) {
 	return (a.x * b.x) + (a.y * b.y);
 }
 
+// coutesy of http://stackoverflow.com/questions/3461453/determine-which-side-of-a-line-a-point-lies
+function isLeft(A, B, p){
+     return ((B.x - A.x)*(p.y - A.y) - (B.y - A.y)*(p.x - A.x)) >= 0 ? 1: -1;
+}
+
 function minus(a, b) {
 	return {x: a.x - b.x, y: a.y - b.y};
 }
@@ -168,13 +173,15 @@ plotPositionSVG = d3.select('#plot-positions').append('svg')
 	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
 	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
 
-
 plotPositionSVG.append('rect')
 	.attr('cx', 0)
 	.attr('cy', 0)
 	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
 	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
 	.attr('class', 'back');
+	
+plotPositionGroup = plotPositionSVG.append('g')
+	.attr('transform', 'translate('+ plotPositionDimension.left+ ', ' + (plotPositionDimension.top + plotPositionDimension.height/2) + ')');
 
 fittsTest.generateTarget();
 fittsTest.active = false;
