@@ -103,19 +103,23 @@ function randomAB(a, b) {
 
 /**
  * Project a point q onto the line p0-p1
+ * Code taken from: http://www.alecjacobson.com/weblog/?p=1486
  */
-function project(p0, p1, q) {
-	var p = {x: 0, y: 0};
-	p.x = -q.x * (p1.x - p0.x) - q.y * (p1.y - p0.y);
-	p.y = -p0.y * (p1.x - p0.x) + p0.x * (p1.y - p0.y);
-	return p;
+function project(A, B, p) {
+	var AB = minus(B, A);
+	var AB_squared = dot(AB, AB);
+	if (AB_squared == 0) {
+		return A
+	}
+	else {
+		var Ap = minus(p, A);
+		var t = dot(Ap, AB) / AB_squared;
+		return {x: A.x + t * AB.x,
+				y: A.y + t * AB.y}
+	}
 }
 
-function distance(a, b) {
-	var dx = a.x - b.x;
-	var dy = a.y - b.y;
-	return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-}
+
 
 function mouseMoved()
 {
@@ -129,6 +133,19 @@ function mouseClicked()
 	fittsTest.mouseClicked(m[0], m[1]);
 }
 
+function dot(a, b) {
+	return (a.x * b.x) + (a.y * b.y);
+}
+
+function minus(a, b) {
+	return {x: a.x - b.x, y: a.y - b.y};
+}
+
+function distance(a, b) {
+	var dx = a.x - b.x;
+	var dy = a.y - b.y;
+	return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+}
 
 
 
@@ -150,9 +167,7 @@ testAreaSVG.append('rect')
 plotPositionSVG = d3.select('#plot-positions').append('svg')
 	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
 	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
-	.style('pointer-events', 'all')
-    .on('mousemove', mouseMoved)
-	.on('mousedown', mouseClicked);
+
 
 plotPositionSVG.append('rect')
 	.attr('cx', 0)
