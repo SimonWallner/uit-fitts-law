@@ -6,7 +6,13 @@ var plotPositionDimension = {top: 30, right: 30, bottom: 30, left: 30};
 plotPositionDimension.width = 700 - (plotPositionDimension.left + plotPositionDimension.right);
 plotPositionDimension.height = 200 - (plotPositionDimension.top + plotPositionDimension.bottom);
 
+var plotHitsDimension = {top: 15, right: 15, bottom: 15, left: 15};
+plotHitsDimension.width = 140 - (plotHitsDimension.left + plotHitsDimension.right);
+plotHitsDimension.height = 140 - (plotHitsDimension.top + plotHitsDimension.bottom);
 
+var rHit = function(r, rTarget) {
+	return ((plotHitsDimension.width / 2) / rTarget) * r;
+}
 
 var fittsTest = {
 	target: {x: 0, y: 0, r: 10},
@@ -37,7 +43,10 @@ var fittsTest = {
 	mouseClicked: function(x, y) {
 		
 		if (distance({x: x, y: y}, this.target) < this.target.r) {
-			this.addDataPoint({start: this.start, target: this.target, path: this.currentPath})
+			this.addDataPoint({start: this.start,
+							   target: this.target,
+							   path: this.currentPath,
+							   hit: {x: x, y: y}})
 			this.removeTarget();
 
 
@@ -60,8 +69,9 @@ var fittsTest = {
 				.attr('y1', this.last.y)
 				.attr('y2', newPoint.y)
 				.transition()
-					.duration(2000)
-					.style('stroke-opacity', .1);
+					.duration(5000)
+					.style('stroke-opacity', 0)
+					.remove();
 				
 			this.last = newPoint;
 		}
@@ -72,13 +82,24 @@ var fittsTest = {
 		var B = data.target;
 		var path = data.path;
 		
-		var last = {x: 0, y: 0};
+		var hit = minus(data.hit, data.target);
+		plotHitsGroup.append('circle')
+			.attr('cx', rHit(hit.x, data.target.r))
+			.attr('cy', rHit(hit.y, data.target.r))
+			.attr('r', 4)
+			.style('fill', 'red')
+			.style('opacity', 1)
+			.transition()
+				.duration(1000)
+					.attr('r', 2)
+					.style('opacity', 0.5)
 		
+		var last = {x: 0, y: 0};
 		for (var i = 0; i < path.length; i++) {
 			var p = path[i];
 			
 			var q = project(A, B, p);
-			var x = distance(q, A) * q.t;
+			var x = distance(q, A) * sign(q.t);
 			var y = distance(q, p) * isLeft(A, B, p);
 			
 			if (last) {
@@ -155,6 +176,9 @@ function distance(a, b) {
 	return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 }
 
+function sign(a) {
+	return a >=0 ? 1 : -1;
+}
 
 
 
@@ -182,9 +206,31 @@ plotPositionSVG.append('rect')
 	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
 	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
 	.attr('class', 'back');
-	
+
 plotPositionGroup = plotPositionSVG.append('g')
 	.attr('transform', 'translate('+ plotPositionDimension.left+ ', ' + (plotPositionDimension.top + plotPositionDimension.height/2) + ')');
+	
+
+
+plotHitsSVG = d3.select('#plot-hits').append('svg')
+	.attr('width', plotHitsDimension.width + plotHitsDimension.left + plotHitsDimension.right)
+	.attr('height', plotHitsDimension.height + plotHitsDimension.top + plotHitsDimension.bottom)
+
+plotHitsSVG.append('rect')
+	.attr('cx', 0)
+	.attr('cy', 0)
+	.attr('width', plotHitsDimension.width + plotHitsDimension.left + plotHitsDimension.right)
+	.attr('height', plotHitsDimension.height + plotHitsDimension.top + plotHitsDimension.bottom)
+	.attr('class', 'back');
+
+plotHitsGroup = plotHitsSVG.append('g')
+		.attr('transform', 'translate('+ (plotHitsDimension.left + plotHitsDimension.width/2) + ', ' + (plotHitsDimension.top + plotHitsDimension.height/2) + ')');
+plotHitsGroup.append('circle')
+	.attr('cx', 0)
+	.attr('cy', 0)
+	.attr('r', plotHitsDimension.width/2)
+	.style('opacity', 0.1)
+
 
 fittsTest.generateTarget();
 fittsTest.active = false;
