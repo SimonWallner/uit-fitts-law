@@ -14,6 +14,15 @@ var rHit = function(r, rTarget) {
 	return ((plotHitsDimension.width / 2) / rTarget) * r;
 }
 
+var maxV = 1; // pixel/ms
+var v = function(v) {
+	var colour = 'rgb(' + clampInt(0, 255, (v / maxV) * 255) + ', 0, 0)';
+	console.log(colour);
+	return colour;
+}
+
+
+
 var fittsTest = {
 	target: {x: 0, y: 0, r: 10},
 	start: {x: 0, y: 0, time: 0},
@@ -51,7 +60,7 @@ var fittsTest = {
 
 
 			this.generateTarget();			
-			this.last = {x: x, y: y, time: (new Date).getTime()};
+			this.last = {x: x, y: y, t: (new Date).getTime()};
 			this.start = this.last;
 			this.currentPath.push(this.last);
 		}
@@ -59,8 +68,12 @@ var fittsTest = {
 	
 	mouseMoved: function(x, y) {
 		if (this.active) {
-			var newPoint = {x: x, y: y, time: (new Date).getTime()}
+			var newPoint = {x: x, y: y, t: (new Date).getTime()}
 			this.currentPath.push(newPoint)
+			
+			var dt = newPoint.t - this.last.t;
+			var dist = distance(this.last, {x: x, y: y})
+			var speed = dist / dt;
 			
 			testAreaSVG.append('svg:line')
 				.attr('class', 'path')
@@ -68,6 +81,7 @@ var fittsTest = {
 				.attr('x2', newPoint.x)
 				.attr('y1', this.last.y)
 				.attr('y2', newPoint.y)
+				.style('stroke', v(speed))
 				.transition()
 					.duration(5000)
 					.style('stroke-opacity', 0)
@@ -94,13 +108,17 @@ var fittsTest = {
 					.attr('r', 2)
 					.style('opacity', 0.5)
 		
-		var last = {x: 0, y: 0};
+		var last = {x: 0, y: 0, t: 0};
 		for (var i = 0; i < path.length; i++) {
 			var p = path[i];
 			
 			var q = project(A, B, p);
 			var x = distance(q, A) * sign(q.t);
 			var y = distance(q, p) * isLeft(A, B, p);
+			
+			var dt = p.t - last.t;
+			var dist = distance(last, {x: x, y: y})
+			var speed = dist / dt;
 			
 			if (last) {
 				plotPositionGroup.append('svg:line')
@@ -109,6 +127,7 @@ var fittsTest = {
 					.attr('x2', x)
 					.attr('y1', last.y)
 					.attr('y2', y)
+					.style('stroke', v(speed))
 					.transition()
 						.duration(2000)
 						.style('stroke-opacity', .1);	
@@ -116,6 +135,7 @@ var fittsTest = {
 			
 			last.x = x;
 			last.y = y;
+			last.t = p.t;
 		}
 	}
 }
@@ -180,6 +200,16 @@ function sign(a) {
 	return a >=0 ? 1 : -1;
 }
 
+function rgb2Hex(r, g, b) {
+	return '#' +
+		clampInt(0, 255, r).toString(16) +
+		clampInt(0, 255, g).toString(16) +
+		clampInt(0, 255, b).toString(16);
+}
+
+function clampInt(lower, upper, x) {
+	return Math.min(upper, Math.max(lower, Math.floor(x)));
+}
 
 
 testAreaSVG = d3.select('#test-area').append('svg')
