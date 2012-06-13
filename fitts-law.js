@@ -10,6 +10,11 @@ var plotHitsDimension = {top: 15, right: 15, bottom: 15, left: 15};
 plotHitsDimension.width = 140 - (plotHitsDimension.left + plotHitsDimension.right);
 plotHitsDimension.height = 140 - (plotHitsDimension.top + plotHitsDimension.bottom);
 
+var plotVelocitiesDimension = {top: 30, right: 30, bottom: 30, left: 30};
+plotVelocitiesDimension.width = 700 - (plotVelocitiesDimension.left + plotVelocitiesDimension.right);
+plotVelocitiesDimension.height = 300 - (plotVelocitiesDimension.top + plotVelocitiesDimension.bottom);
+
+
 var rHit = function(r, rTarget) {
 	return ((plotHitsDimension.width / 2) / rTarget) * r;
 }
@@ -68,6 +73,10 @@ var fittsTest = {
 	
 	mouseMoved: function(x, y) {
 		if (this.active) {
+			if (x == this.last.x && y == this.last.y) {
+				return
+			}
+			
 			var newPoint = {x: x, y: y, t: (new Date).getTime()}
 			this.currentPath.push(newPoint)
 			
@@ -108,7 +117,7 @@ var fittsTest = {
 					.attr('r', 2)
 					.style('opacity', 0.5)
 		
-		var last = {x: 0, y: 0, t: 0};
+		var last = {x: 0, y: 0, t: 0, v: 0};
 		for (var i = 0; i < path.length; i++) {
 			var p = path[i];
 			
@@ -118,7 +127,7 @@ var fittsTest = {
 			
 			var dt = p.t - last.t;
 			var dist = distance(last, {x: x, y: y})
-			var speed = dist / dt;
+			var speed = dist;// / dt;
 			
 			if (last) {
 				plotPositionGroup.append('svg:line')
@@ -130,12 +139,24 @@ var fittsTest = {
 					.style('stroke', v(speed))
 					.transition()
 						.duration(2000)
-						.style('stroke-opacity', .1);	
+						.style('stroke-opacity', .1);
+				
+				plotVelocitiesGroup.append('svg:line')
+					.attr('class', 'path')
+					.attr('x1', last.x)
+					.attr('x2', x)
+					.attr('y1', -last.v * 5)
+					.attr('y2', -speed * 5)
+					.transition()
+						.duration(2000)
+						.style('stroke-opacity', .1);
+					
 			}
 			
 			last.x = x;
 			last.y = y;
 			last.t = p.t;
+			last.v = speed;
 		}
 	}
 }
@@ -237,8 +258,26 @@ plotPositionSVG.append('rect')
 	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
 	.attr('class', 'back');
 
+plotPositionSVG.append('line')
+	.attr('x1', 0)
+	.attr('x2', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
+	.attr('y1', plotPositionDimension.height/2 + plotPositionDimension.top)
+	.attr('y2', plotPositionDimension.height/2 + plotPositionDimension.top)
+	.style('stroke', 'black')
+	.style('shape-rendering','crispEdges');
+	
+plotPositionSVG.append('line')
+	.attr('x1', plotPositionDimension.left)
+	.attr('x2', plotPositionDimension.left)
+	.attr('y1', 0)
+	.attr('y2', plotPositionDimension.top + plotPositionDimension.height + plotPositionDimension.bottom)
+	.style('stroke', 'black')
+	.style('shape-rendering','crispEdges');	
+
 plotPositionGroup = plotPositionSVG.append('g')
 	.attr('transform', 'translate('+ plotPositionDimension.left+ ', ' + (plotPositionDimension.top + plotPositionDimension.height/2) + ')');
+
+
 	
 
 
@@ -260,6 +299,24 @@ plotHitsGroup.append('circle')
 	.attr('cy', 0)
 	.attr('r', plotHitsDimension.width/2)
 	.style('opacity', 0.1)
+
+	
+	
+plotVelocitiesSVG = d3.select('#plot-velocities').append('svg')
+	.attr('width', plotVelocitiesDimension.width + plotVelocitiesDimension.left + plotVelocitiesDimension.right)
+	.attr('height', plotVelocitiesDimension.height + plotVelocitiesDimension.top + plotVelocitiesDimension.bottom)
+
+plotVelocitiesSVG.append('rect')
+	.attr('cx', 0)
+	.attr('cy', 0)
+	.attr('width', plotVelocitiesDimension.width + plotVelocitiesDimension.left + plotVelocitiesDimension.right)
+	.attr('height', plotVelocitiesDimension.height + plotVelocitiesDimension.top + plotVelocitiesDimension.bottom)
+	.attr('class', 'back');
+
+plotVelocitiesGroup = plotVelocitiesSVG.append('g')
+	.attr('transform', 'translate('+ (plotVelocitiesDimension.left) + ', ' + (plotVelocitiesDimension.top + plotVelocitiesDimension.height) + ')');
+
+	
 
 
 fittsTest.generateTarget();
