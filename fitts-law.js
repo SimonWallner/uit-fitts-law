@@ -1,34 +1,38 @@
 // "use strict";
 
-function brk() {
-	1 + 1;
+/**
+ * Create dimensions from the given values and store them for later use.
+ * All values should be positive and make sense.
+ * @param {number} width The outer width of the area.
+ * @param {number} height The outer height of the area.
+ * @param {number} top Margin form the top edge.
+ * @param {number} right Margin form the right edge.
+ * @param {number} bottom Margin form the bottom edge.
+ * @param {number} left Margin form the left edge.
+ */
+function makeDimension(width, height, top, right, bottom, left) {
+	return {width: width,
+		height: height,
+		innerWidth: width - (left + right),
+		innerHeight: height - (top + bottom),
+		top: top,
+		right: right,
+		bottom: bottom,
+		left: left,
+		cx: (width - (left + right)) / 2 + left,
+		cy: (height - (top + bottom)) / 2 + top};
 }
 
-
-var testDimension = {top: 30, right: 30, bottom: 30, left: 30};
-testDimension.width = 620 - (testDimension.left + testDimension.right);
-testDimension.height = 400 - (testDimension.top + testDimension.bottom);
-
-var plotPositionDimension = {top: 30, right: 30, bottom: 30, left: 30};
-plotPositionDimension.width = 300 - (plotPositionDimension.left + plotPositionDimension.right);
-plotPositionDimension.height = 198 - (plotPositionDimension.top + plotPositionDimension.bottom);
-
-var plotVelocitiesDimension = {top: 30, right: 30, bottom: 30, left: 30};
-plotVelocitiesDimension.width = 300 - (plotVelocitiesDimension.left + plotVelocitiesDimension.right);
-plotVelocitiesDimension.height = 198 - (plotVelocitiesDimension.top + plotVelocitiesDimension.bottom);
-
-var plotHitsDimension = {top: 15, right: 15, bottom: 15, left: 15};
-plotHitsDimension.width = 140 - (plotHitsDimension.left + plotHitsDimension.right);
-plotHitsDimension.height = 140 - (plotHitsDimension.top + plotHitsDimension.bottom);
-
-var plotScatterDimension = {top: 30, right: 30, bottom: 30, left: 50};
-plotScatterDimension.width = 300 - (plotScatterDimension.left + plotScatterDimension.right);
-plotScatterDimension.height = 200 - (plotScatterDimension.top + plotScatterDimension.bottom);
-
+// set up dimensions for the plotting.
+var testDimension = makeDimension(620, 400, 30, 30, 30, 30);
+var plotPositionDimension = makeDimension(300, 198, 30, 30, 30, 30);
+var plotVelocitiesDimension = plotPositionDimension;
+var plotHitsDimension = makeDimension(140, 140, 15, 15, 15, 15);
+var plotScatterDimension = makeDimension(300, 198, 30, 30, 30, 50);
 
 
 function rHit(r, rTarget) {
-	return ((plotHitsDimension.width / 2) / rTarget) * r;
+	return ((plotHitsDimension.innerWidth / 2) / rTarget) * r;
 };
 
 var maxV = 1; // pixel/ms
@@ -39,11 +43,11 @@ function v(v) {
 
 var scatterX = d3.scale.linear()
 	.domain([0, 5])
-	.range([0, plotScatterDimension.width]);
+	.range([0, plotScatterDimension.innerWidth]);
 
 var scatterY = d3.scale.linear()
 	.domain([3000, 0])
-	.range([0, plotScatterDimension.height]);
+	.range([0, plotScatterDimension.innerHeight]);
 
 
 var fittsTest = {
@@ -61,8 +65,8 @@ var fittsTest = {
 	sumTime: 0,
 	
 	generateTarget: function() {
-		this.target.x = randomAB(testDimension.left, testDimension.width);
-		this.target.y = randomAB(testDimension.top, testDimension.height);
+		this.target.x = randomAB(testDimension.left, testDimension.innerWidth);
+		this.target.y = randomAB(testDimension.top, testDimension.innerHeight);
 		testAreaSVG.append('svg:circle')
 			.attr('id', 'target')
 			.attr('cx', this.target.x)
@@ -167,7 +171,7 @@ var fittsTest = {
 			var setValues = function(d) {
 				return d
 					.attr('x1', 0)
-					.attr('x2', plotScatterDimension.width)
+					.attr('x2', plotScatterDimension.innerWidth)
 					.attr('y1', function(d) { return scatterY(d.y1); })
 					.attr('y2', function(d) { return scatterY(d.y2); })
 			}
@@ -322,36 +326,33 @@ function shannon(A, W) {
 	return Math.log(A / W + 1) / Math.log(2);
 }
 
+function bgRect(d, dim) {
+	return d.append('rect')
+		.attr('cx', 0)
+		.attr('cy', 0)
+		.attr('width', dim.width)
+		.attr('height', dim.height)
+		.attr('class', 'back');
+}
+
 testAreaSVG = d3.select('#test-area').append('svg')
-	.attr('width', testDimension.width + testDimension.left + testDimension.right)
-	.attr('height', testDimension.height + testDimension.top + testDimension.bottom)
+	.attr('width', testDimension.width)
+	.attr('height', testDimension.height)
 	.style('pointer-events', 'all')
     .on('mousemove', mouseMoved)
-	.on('mousedown', mouseClicked);
-
-testAreaSVG.append('rect')
-	.attr('cx', 0)
-	.attr('cy', 0)
-	.attr('width', testDimension.width + testDimension.left + testDimension.right)
-	.attr('height', testDimension.height + testDimension.top + testDimension.bottom)
-	.attr('class', 'back');
+	.on('mousedown', mouseClicked)
+	.call(bgRect, testDimension);
 
 plotPositionSVG = d3.select('#plot-positions').append('svg')
-	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
-	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom);
-
-plotPositionSVG.append('rect')
-	.attr('cx', 0)
-	.attr('cy', 0)
-	.attr('width', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
-	.attr('height', plotPositionDimension.height + plotPositionDimension.top + plotPositionDimension.bottom)
-	.attr('class', 'back');
+	.attr('width', plotPositionDimension.width)
+	.attr('height', plotPositionDimension.height)
+	.call(bgRect, plotPositionDimension)
 
 plotPositionSVG.append('line')
 	.attr('x1', 0)
-	.attr('x2', plotPositionDimension.width + plotPositionDimension.left + plotPositionDimension.right)
-	.attr('y1', plotPositionDimension.height/2 + plotPositionDimension.top)
-	.attr('y2', plotPositionDimension.height/2 + plotPositionDimension.top)
+	.attr('x2', plotPositionDimension.width)
+	.attr('y1', plotPositionDimension.cy)
+	.attr('y2', plotPositionDimension.cy)
 	.style('stroke', 'black')
 	.style('shape-rendering','crispEdges');
 	
@@ -359,64 +360,47 @@ plotPositionSVG.append('line')
 	.attr('x1', plotPositionDimension.left)
 	.attr('x2', plotPositionDimension.left)
 	.attr('y1', 0)
-	.attr('y2', plotPositionDimension.top + plotPositionDimension.height + plotPositionDimension.bottom)
+	.attr('y2', plotPositionDimension.height)
 	.style('stroke', 'black')
 	.style('shape-rendering','crispEdges');	
 
 plotPositionGroup = plotPositionSVG.append('g')
-	.attr('transform', 'translate('+ plotPositionDimension.left+ ', ' + (plotPositionDimension.top + plotPositionDimension.height/2) + ')');
+	.attr('transform', 'translate('+ plotPositionDimension.left + ', ' + plotPositionDimension.cy + ')');
 
 
 	
 
 
 plotHitsSVG = d3.select('#plot-hits').append('svg')
-	.attr('width', plotHitsDimension.width + plotHitsDimension.left + plotHitsDimension.right)
-	.attr('height', plotHitsDimension.height + plotHitsDimension.top + plotHitsDimension.bottom)
+	.attr('width', plotHitsDimension.width)
+	.attr('height', plotHitsDimension.height)
+	.call(bgRect, plotHitsDimension);
 
-plotHitsSVG.append('rect')
-	.attr('cx', 0)
-	.attr('cy', 0)
-	.attr('width', plotHitsDimension.width + plotHitsDimension.left + plotHitsDimension.right)
-	.attr('height', plotHitsDimension.height + plotHitsDimension.top + plotHitsDimension.bottom)
-	.attr('class', 'back');
 
 plotHitsGroup = plotHitsSVG.append('g')
-		.attr('transform', 'translate('+ (plotHitsDimension.left + plotHitsDimension.width/2) + ', ' + (plotHitsDimension.top + plotHitsDimension.height/2) + ')');
+		.attr('transform', 'translate('+ plotHitsDimension.cx + ', ' + plotHitsDimension.cy + ')');
 plotHitsGroup.append('circle')
 	.attr('cx', 0)
 	.attr('cy', 0)
-	.attr('r', plotHitsDimension.width/2)
+	.attr('r', plotHitsDimension.innerWidth/2)
 	.style('opacity', 0.1)
 
 	
 	
 plotVelocitiesSVG = d3.select('#plot-velocities').append('svg')
-	.attr('width', plotVelocitiesDimension.width + plotVelocitiesDimension.left + plotVelocitiesDimension.right)
-	.attr('height', plotVelocitiesDimension.height + plotVelocitiesDimension.top + plotVelocitiesDimension.bottom)
-
-plotVelocitiesSVG.append('rect')
-	.attr('cx', 0)
-	.attr('cy', 0)
-	.attr('width', plotVelocitiesDimension.width + plotVelocitiesDimension.left + plotVelocitiesDimension.right)
-	.attr('height', plotVelocitiesDimension.height + plotVelocitiesDimension.top + plotVelocitiesDimension.bottom)
-	.attr('class', 'back');
+	.attr('width', plotVelocitiesDimension.width)
+	.attr('height', plotVelocitiesDimension.height)
+	.call(bgRect, plotVelocitiesDimension);
 
 plotVelocitiesGroup = plotVelocitiesSVG.append('g')
-	.attr('transform', 'translate('+ (plotVelocitiesDimension.left) + ', ' + (plotVelocitiesDimension.top + plotVelocitiesDimension.height) + ')');
+	.attr('transform', 'translate('+ (plotVelocitiesDimension.left) + ', ' + (plotVelocitiesDimension.top + plotVelocitiesDimension.innerHeight) + ')');
 
 
 
 scatterSVG = d3.select('#plot-scatter').append('svg')
-	.attr('width', plotScatterDimension.width + plotScatterDimension.left + plotScatterDimension.right)
-	.attr('height', plotScatterDimension.height + plotScatterDimension.top + plotScatterDimension.bottom)
-
-scatterSVG.append('rect')
-	.attr('cx', 0)
-	.attr('cy', 0)
-	.attr('width', plotScatterDimension.width + plotScatterDimension.left + plotScatterDimension.right)
-	.attr('height', plotScatterDimension.height + plotScatterDimension.top + plotScatterDimension.bottom)
-	.attr('class', 'back');
+	.attr('width', plotScatterDimension.width)
+	.attr('height', plotScatterDimension.height)
+	.call(bgRect, plotScatterDimension);
 
 scatterGroup = scatterSVG.append('g')
 	.attr('transform', 'translate('+ (plotScatterDimension.left) + ',' + plotScatterDimension.top + ' )');
@@ -439,12 +423,12 @@ var yAxis = d3.svg.axis()
 scatterGroup.append("g")
     .attr("class", "axis")
 	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
-    .call(xAxis.tickSize(plotScatterDimension.height).orient("bottom"));
+    .call(xAxis.tickSize(plotScatterDimension.innerHeight).orient("bottom"));
 
 scatterGroup.append("g")
     .attr("class", "axis")
 	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
-    .call(yAxis.tickSize(-plotScatterDimension.width).orient("left"));
+    .call(yAxis.tickSize(-plotScatterDimension.innerWidth).orient("left"));
 
 fittsTest.generateTarget();
 fittsTest.active = false;
