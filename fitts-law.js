@@ -30,7 +30,6 @@ var plotVelocitiesDimension = plotPositionDimension;
 var plotHitsDimension = makeDimension(140, 140, 15, 15, 15, 15);
 var plotScatterDimension = makeDimension(300, 198, 30, 30, 30, 50);
 
-
 function rHit(r, rTarget) {
 	return ((plotHitsDimension.innerWidth / 2) / rTarget) * r;
 };
@@ -51,7 +50,7 @@ var scatterY = d3.scale.linear()
 
 
 var fittsTest = {
-	target: {x: 0, y: 0, r: 10},
+	target: {x: 0, y: 0, r: 80},
 	start: {x: 0, y: 0, t: 0},
 	last: {},
 	
@@ -66,7 +65,7 @@ var fittsTest = {
 	
 	generateTarget: function() {
 		this.target.x = randomAB(testDimension.left, testDimension.innerWidth);
-		this.target.y = randomAB(testDimension.top, testDimension.innerHeight);
+		this.target.y = testDimension.cy;//randomAB(testDimension.top, testDimension.innerHeight);
 		testAreaSVG.append('svg:circle')
 			.attr('id', 'target')
 			.attr('cx', this.target.x)
@@ -226,7 +225,7 @@ var fittsTest = {
 					.attr('x2', x / 2)
 					.attr('y1', last.y)
 					.attr('y2', y)
-					.style('stroke', v(speed))
+					.style('stroke', v(speed/ dt))
 					.transition()
 						.duration(2000)
 						.style('stroke-opacity', .1);
@@ -237,6 +236,7 @@ var fittsTest = {
 					.attr('x2', x / 2)
 					.attr('y1', -last.v * 2)
 					.attr('y2', -speed * 2)
+					.style('stroke', v(speed / dt))
 					.transition()
 						.duration(2000)
 						.style('stroke-opacity', .1);
