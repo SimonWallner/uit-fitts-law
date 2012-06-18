@@ -315,7 +315,7 @@ var fittsTest = {
 };
 
 function randomAB(a, b) {
-	return a + Math.random() * b;
+	return a + Math.random() * (b - a);
 }
 
 /**
@@ -561,3 +561,21 @@ $("#sliderRadius").slider({
 		d3.select('#sliderRadiusValue').text(ui.value);
 	}
 });
+
+$('#randomiseButton').click(function() {
+	fittsTest.isoParams.distance = Math.floor(randomAB(fittsTest.isoLimits.minD, fittsTest.isoLimits.maxD));
+	fittsTest.isoParams.radius = Math.floor(randomAB(fittsTest.isoLimits.minR, fittsTest.isoLimits.maxR));
+	
+	$('#sliderDistance').slider('value', fittsTest.isoParams.distance);
+	$('#sliderRadius').slider('value', fittsTest.isoParams.radius);
+
+	fittsTest.updateISOCircles();
+	d3.select('#sliderDistanceValue').text(fittsTest.isoParams.distance);
+	d3.select('#sliderRadiusValue').text(fittsTest.isoParams.radius);
+	
+	$('#randomiseCheckbox').attr('checked', true);
+});
+
+$('#randomiseCheckbox').change(function(event) {
+	fittsTest.isoParams.randomise = $(this).attr('checked');
+})
