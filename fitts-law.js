@@ -50,7 +50,7 @@ var scatterY = d3.scale.linear()
 
 
 var fittsTest = {
-	target: {x: 0, y: 0, r: 80},
+	target: {x: 0, y: 0, r: 20},
 	start: {x: 0, y: 0, t: 0},
 	last: {},
 	
