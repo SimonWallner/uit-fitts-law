@@ -85,3 +85,7 @@ line.regression {
 	stroke: red;
 	stroke-width:2px;
 }
+
+circle.iso {
+	fill: #ededed;
+}

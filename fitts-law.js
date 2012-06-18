@@ -56,6 +56,9 @@ var fittsTest = {
 	target: {x: 0, y: 0, r: 10},
 	start: {x: 0, y: 0, t: 0},
 	last: {},
+
+	isoPositions: [],
+	currentPosition: 0,
 	
 	currentPath: [],
 	active: false,
@@ -67,8 +70,9 @@ var fittsTest = {
 	sumTime: 0,
 	
 	generateTarget: function() {
-		this.target.x = randomAB(testDimension.left, testDimension.innerWidth);
-		this.target.y = testDimension.cy;//randomAB(testDimension.top, testDimension.innerHeight);
+		this.target = this.isoPositions[this.currentPosition];
+		this.currentPosition = (this.currentPosition + Math.ceil(this.isoPositions.length/2)) % this.isoPositions.length;
+		
 		testAreaSVG.append('svg:circle')
 			.attr('id', 'target')
 			.attr('cx', this.target.x)
@@ -77,6 +81,42 @@ var fittsTest = {
 			.style('fill', 'red');
 		
 		this.active = true;
+	},
+	
+	updateISOCircles: function() {
+
+		var circles = testAreaSVG.selectAll('circle').data(this.isoPositions)
+		
+		var insert = function(d) {
+			d.attr('cx', function(d) { return d.x; })
+			.attr('cy', function(d) { return d.y; })
+			.attr('r', function(d) { return d.r; });
+		}
+
+		circles.enter()
+			.append('circle')
+			.attr('class', 'iso')
+			.call(insert);
+									
+		circles.transition()
+			.duration(500)
+			.call(insert);
+		
+		circles.exit()
+			.transition()
+				.duration(500)
+				.attr('r', 0)
+				.remove();
+},
+	
+	generateISOPositions: function(num, d, r) {
+		this.isoPositions = [];
+		
+		for (var i = 0; i < num; i++) {
+			this.isoPositions[i] = {x: testDimension.cx + (d * Math.cos((2 * Math.PI * i) / num)),
+				y: testDimension.cy + (d * Math.sin((2 * Math.PI * i) / num)),
+				r: r};
+		}
 	},
 	
 	removeTarget: function() {
@@ -469,5 +509,9 @@ scatterGroup.append("g")
 	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
     .call(yAxis.tickSize(-plotScatterDimension.innerWidth).orient("left"));
 
-fittsTest.generateTarget();
+
 fittsTest.active = false;
+
+fittsTest.generateISOPositions(15, 150, 10);
+fittsTest.updateISOCircles();
+fittsTest.generateTarget();
