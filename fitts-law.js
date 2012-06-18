@@ -30,6 +30,8 @@ var plotVelocitiesDimension = plotPositionDimension;
 var plotHitsDimension = plotPositionDimension;
 var plotScatterDimension = makeDimension(220, 200, 30, 30, 30, 50);
 var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
+var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 30);
+var speedEffectiveDimension = positionEffectiveDimension;
 
 function rHit(r, rTarget) {
 	return ((plotHitsDimension.innerWidth / 2) / rTarget) * r;
@@ -406,6 +408,7 @@ scatterSVG = d3.select('#plot-scatter').append('svg')
 scatterGroup = scatterSVG.append('g')
 	.attr('transform', 'translate('+ (plotScatterDimension.left) + ',' + plotScatterDimension.top + ' )');
 
+
 scatterEffectiveSVG = d3.select('#scatterEffective').append('svg')
 	.attr('width', scatterEffectiveDimension.width)
 	.attr('height', scatterEffectiveDimension.height)
@@ -413,6 +416,33 @@ scatterEffectiveSVG = d3.select('#scatterEffective').append('svg')
 
 scatterEffectiveGroup = scatterEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (scatterEffectiveDimension.left) + ',' + scatterEffectiveDimension.top + ' )');
+
+
+throughputSVG = d3.select('#throughput').append('svg')
+	.attr('width', scatterEffectiveDimension.width)
+	.attr('height', scatterEffectiveDimension.height)
+	.call(bgRect, scatterEffectiveDimension);
+
+throughputGroup = throughputSVG.append('g')
+	.attr('transform', 'translate('+ (scatterEffectiveDimension.left) + ',' + scatterEffectiveDimension.top + ' )');
+	
+
+positionEffectiveSVG = d3.select('#positionEffective').append('svg')
+	.attr('width', positionEffectiveDimension.width)
+	.attr('height', positionEffectiveDimension.height)
+	.call(bgRect, positionEffectiveDimension);
+
+positionEffectiveGroup = positionEffectiveSVG.append('g')
+	.attr('transform', 'translate('+ (positionEffectiveDimension.left) + ',' + positionEffectiveDimension.top + ' )');
+
+
+speedEffectiveSVG = d3.select('#speedEffective').append('svg')
+	.attr('width', speedEffectiveDimension.width)
+	.attr('height', speedEffectiveDimension.height)
+	.call(bgRect, speedEffectiveDimension);
+
+speedEffectiveGroup = speedEffectiveSVG.append('g')
+	.attr('transform', 'translate('+ (speedEffectiveDimension.left) + ',' + speedEffectiveDimension.top + ' )');
 
 
 
