@@ -1,4 +1,4 @@
-// "use strict";
+"use strict";
 
 /**
  * Create dimensions from the given values and store them for later use.
@@ -59,8 +59,9 @@ var fittsTest = {
 
 	isoPositions: [],
 	currentPosition: 0,
+	currentCount: 0,
 	isoLimits: {minD: 60, maxD: 150, minR:5 , maxR: 50},
-	isoParams: {num: 15, distance: 100, radius: 20, randomise: false},
+	isoParams: {num: 9, distance: 100, radius: 20, randomise: true},
 	
 	currentPath: [],
 	active: false,
@@ -97,6 +98,8 @@ var fittsTest = {
 	},
 	
 	updateISOCircles: function() {
+		this.currentCount = 0;
+		
 		this.generateISOPositions(this.isoParams.num,
 			this.isoParams.distance,
 			this.isoParams.radius);
@@ -122,8 +125,9 @@ var fittsTest = {
 				.attr('r', 0)
 				.remove();
 				
-		fittsTest.currentPosition = 0;
-		fittsTest.generateTarget();
+		this.currentPosition = 0;
+		this.generateTarget();
+		this.active = false;
 },
 	
 	generateISOPositions: function(num, d, r) {
@@ -154,8 +158,20 @@ var fittsTest = {
 							   hit: {x: x, y: y, t: (new Date).getTime()}});
 			this.removeTarget();
 
+			if (this.isoParams.randomise && this.currentCount >= this.isoPositions.length) {
+				this.randomiseParams();
+				this.currentCount = 0;
+				this.currentPosition = 0;
+				this.updateISOCircles;
+				this.generateTarget();
+				this.active = false;
+			}
+			else {
+				this.currentCount++;
+				this.generateTarget();			
+			}
 
-			this.generateTarget();			
+			
 			this.last = {x: x, y: y, t: (new Date).getTime()};
 			this.start = this.last;
 			this.currentPath.push(this.last);
@@ -193,6 +209,8 @@ var fittsTest = {
 	
 	addDataPoint: function(data) {
 		// add point to data array for plotting into ID/time scatter plot
+		if (this.active == false)
+			return;
 		
 		var dt = data.hit.t - data.start.t;
 		var id = shannon(distance(data.target, data.start), data.target.r * 2);
@@ -311,6 +329,18 @@ var fittsTest = {
 			last.t = p.t;
 			last.v = speed;
 		}
+	},
+	
+	randomiseParams: function() {
+		this.isoParams.distance = Math.floor(randomAB(this.isoLimits.minD, this.isoLimits.maxD));
+		this.isoParams.radius = Math.floor(randomAB(this.isoLimits.minR, this.isoLimits.maxR));
+
+		$('#sliderDistance').slider('value', this.isoParams.distance);
+		$('#sliderRadius').slider('value', this.isoParams.radius);
+
+		this.updateISOCircles();
+		d3.select('#sliderDistanceValue').text(this.isoParams.distance);
+		d3.select('#sliderRadiusValue').text(this.isoParams.radius);
 	}
 };
 
@@ -398,7 +428,9 @@ function bgRect(d, dim) {
 		.attr('class', 'back');
 }
 
-testAreaSVG = d3.select('#test-area').append('svg')
+
+
+var testAreaSVG = d3.select('#test-area').append('svg')
 	.attr('width', testDimension.width)
 	.attr('height', testDimension.height)
 	.style('pointer-events', 'all')
@@ -406,7 +438,7 @@ testAreaSVG = d3.select('#test-area').append('svg')
 	.on('mousedown', mouseClicked)
 	.call(bgRect, testDimension);
 
-plotPositionSVG = d3.select('#plot-positions').append('svg')
+var plotPositionSVG = d3.select('#plot-positions').append('svg')
 	.attr('width', plotPositionDimension.width)
 	.attr('height', plotPositionDimension.height)
 	.call(bgRect, plotPositionDimension)
@@ -427,20 +459,20 @@ plotPositionSVG.append('line')
 	.style('stroke', 'black')
 	.style('shape-rendering','crispEdges');	
 
-plotPositionGroup = plotPositionSVG.append('g')
+var plotPositionGroup = plotPositionSVG.append('g')
 	.attr('transform', 'translate('+ plotPositionDimension.left + ', ' + plotPositionDimension.cy + ')');
 
 
 	
 
 
-plotHitsSVG = d3.select('#plot-hits').append('svg')
+var plotHitsSVG = d3.select('#plot-hits').append('svg')
 	.attr('width', plotHitsDimension.width)
 	.attr('height', plotHitsDimension.height)
 	.call(bgRect, plotHitsDimension);
 
 
-plotHitsGroup = plotHitsSVG.append('g')
+var plotHitsGroup = plotHitsSVG.append('g')
 		.attr('transform', 'translate('+ plotHitsDimension.cx + ', ' + plotHitsDimension.cy + ')');
 plotHitsGroup.append('circle')
 	.attr('cx', 0)
@@ -450,58 +482,58 @@ plotHitsGroup.append('circle')
 
 	
 	
-plotVelocitiesSVG = d3.select('#plot-velocities').append('svg')
+var plotVelocitiesSVG = d3.select('#plot-velocities').append('svg')
 	.attr('width', plotVelocitiesDimension.width)
 	.attr('height', plotVelocitiesDimension.height)
 	.call(bgRect, plotVelocitiesDimension);
 
-plotVelocitiesGroup = plotVelocitiesSVG.append('g')
+var plotVelocitiesGroup = plotVelocitiesSVG.append('g')
 	.attr('transform', 'translate('+ (plotVelocitiesDimension.left) + ', ' + (plotVelocitiesDimension.top + plotVelocitiesDimension.innerHeight) + ')');
 
 
 
-scatterSVG = d3.select('#plot-scatter').append('svg')
+var scatterSVG = d3.select('#plot-scatter').append('svg')
 	.attr('width', plotScatterDimension.width)
 	.attr('height', plotScatterDimension.height)
 	.call(bgRect, plotScatterDimension);
 
-scatterGroup = scatterSVG.append('g')
+var scatterGroup = scatterSVG.append('g')
 	.attr('transform', 'translate('+ (plotScatterDimension.left) + ',' + plotScatterDimension.top + ' )');
 
 
-scatterEffectiveSVG = d3.select('#scatterEffective').append('svg')
+var scatterEffectiveSVG = d3.select('#scatterEffective').append('svg')
 	.attr('width', scatterEffectiveDimension.width)
 	.attr('height', scatterEffectiveDimension.height)
 	.call(bgRect, scatterEffectiveDimension);
 
-scatterEffectiveGroup = scatterEffectiveSVG.append('g')
+var scatterEffectiveGroup = scatterEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (scatterEffectiveDimension.left) + ',' + scatterEffectiveDimension.top + ' )');
 
 
-throughputSVG = d3.select('#throughput').append('svg')
+var throughputSVG = d3.select('#throughput').append('svg')
 	.attr('width', scatterEffectiveDimension.width)
 	.attr('height', scatterEffectiveDimension.height)
 	.call(bgRect, scatterEffectiveDimension);
 
-throughputGroup = throughputSVG.append('g')
+var throughputGroup = throughputSVG.append('g')
 	.attr('transform', 'translate('+ (scatterEffectiveDimension.left) + ',' + scatterEffectiveDimension.top + ' )');
 	
 
-positionEffectiveSVG = d3.select('#positionEffective').append('svg')
+var positionEffectiveSVG = d3.select('#positionEffective').append('svg')
 	.attr('width', positionEffectiveDimension.width)
 	.attr('height', positionEffectiveDimension.height)
 	.call(bgRect, positionEffectiveDimension);
 
-positionEffectiveGroup = positionEffectiveSVG.append('g')
+var positionEffectiveGroup = positionEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (positionEffectiveDimension.left) + ',' + positionEffectiveDimension.top + ' )');
 
 
-speedEffectiveSVG = d3.select('#speedEffective').append('svg')
+var speedEffectiveSVG = d3.select('#speedEffective').append('svg')
 	.attr('width', speedEffectiveDimension.width)
 	.attr('height', speedEffectiveDimension.height)
 	.call(bgRect, speedEffectiveDimension);
 
-speedEffectiveGroup = speedEffectiveSVG.append('g')
+var speedEffectiveGroup = speedEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (speedEffectiveDimension.left) + ',' + speedEffectiveDimension.top + ' )');
 
 
@@ -547,6 +579,8 @@ $("#sliderDistance").slider({
 		fittsTest.isoParams.distance = ui.value;
 		fittsTest.updateISOCircles();
 		d3.select('#sliderDistanceValue').text(ui.value);
+		$('#randomiseCheckbox').attr('checked', false);
+		fittsTest.isoParams.randomise = false;
 	}
 });
 
@@ -559,21 +593,15 @@ $("#sliderRadius").slider({
 		fittsTest.isoParams.radius = ui.value;
 		fittsTest.updateISOCircles();
 		d3.select('#sliderRadiusValue').text(ui.value);
+		$('#randomiseCheckbox').attr('checked', false);
+		fittsTest.isoParams.randomise = false;
 	}
 });
 
 $('#randomiseButton').click(function() {
-	fittsTest.isoParams.distance = Math.floor(randomAB(fittsTest.isoLimits.minD, fittsTest.isoLimits.maxD));
-	fittsTest.isoParams.radius = Math.floor(randomAB(fittsTest.isoLimits.minR, fittsTest.isoLimits.maxR));
-	
-	$('#sliderDistance').slider('value', fittsTest.isoParams.distance);
-	$('#sliderRadius').slider('value', fittsTest.isoParams.radius);
-
-	fittsTest.updateISOCircles();
-	d3.select('#sliderDistanceValue').text(fittsTest.isoParams.distance);
-	d3.select('#sliderRadiusValue').text(fittsTest.isoParams.radius);
-	
+	fittsTest.randomiseParams();
 	$('#randomiseCheckbox').attr('checked', true);
+	fittsTest.isoParams.randomise = true;
 });
 
 $('#randomiseCheckbox').change(function(event) {
