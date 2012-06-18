@@ -282,10 +282,11 @@ var fittsTest = {
 			.style('fill', 'red')
 			.style('opacity', 1)
 			.transition()
-				.duration(1000)
+				.duration(3000)
 					.ease('linear')
 					.attr('r', 2)
-					.style('opacity', 0.5);
+					.style('opacity', 0)
+					.remove();
 		
 		var last = {};
 		for (var i = 0; i < path.length; i++) {
@@ -308,8 +309,9 @@ var fittsTest = {
 					.attr('y2', y)
 					.style('stroke', v(speed/ dt))
 					.transition()
-						.duration(2000)
-						.style('stroke-opacity', .1);
+						.duration(3000)
+						.style('stroke-opacity', 0)
+						.remove();
 				
 				plotVelocitiesGroup.append('svg:line')
 					.attr('class', 'path')
@@ -319,8 +321,9 @@ var fittsTest = {
 					.attr('y2', -speed * 2)
 					.style('stroke', v(speed / dt))
 					.transition()
-						.duration(2000)
-						.style('stroke-opacity', .1);
+						.duration(3000)
+						.style('stroke-opacity', 0)
+						.remove();
 					
 			}
 			
