@@ -44,7 +44,7 @@ function v(v) {
 };
 
 var scatterX = d3.scale.linear()
-	.domain([0, 5])
+	.domain([0.5, 5.5])
 	.range([0, plotScatterDimension.innerWidth]);
 
 var scatterY = d3.scale.linear()
