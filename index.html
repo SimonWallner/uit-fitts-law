@@ -15,6 +15,10 @@
 		<link type="text/css" rel="stylesheet" href="style.css"/>
 	</head>
 	<body>
+		<!-- fork me on github -->
+		<a href="https://github.com/SimonWallner/uit-fitts-law"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+		
+		
 		<div class="container_12">
 			<h1 class="prefix_1 grid_11">User Interface Technologies Lab #5: Visualising <strong>Fitts' Law</strong></h1>
 			<div class="prefix_1 grid_7">
@@ -26,30 +30,41 @@
 		
 			<div class="clear"></div>
 			
-			<div class="grid_8 sans">
-				<div id="test-area"></div>
-				figure 1: Target moving to random positions.
+			<div class="grid_6">
+				<div id="test-area" class="sans"></div>
+				<p class="caption">
+					fig. 1a: Test Area
+				</p>
 			</div>
 			
-			<div class="grid_3 sans">
-				 <div id="plot-positions"></div>
-				figure n: Deviation from target path (straight line from starting point to to target center).
+			<div class="grid_3">
+				 <div id="plot-positions" class="sans"></div>
+				<p class="caption">
+					fig. 1b: Movement path
+				</p>
 			</div>
-			<div class="grid_3 sans">
-				<div id="plot-velocities"></div>
-				figure m: Movement speed against position on the target path. (as above)
-				
-			</div>
-			<div class="clear"></div>
 			
-			<div class="prefix_1 grid_4 sans">
-				<div id="plot-scatter"></div>
-				The high correlation of time/ID shows that Fitts' law explains the observed data quite well.
+			<div class="grid_3">
+				<div id="plot-velocities" class="sans"></div>
+				<p class="caption">
+					fig. 1c: Movement speed
+				</p>				
 			</div>
-			<div class="grid_2 sans">
-				<div id="plot-hits"></div>
-				Illustrating where the user clicks the target.
+			
+			<div class="grid_3" style="margin-top: 25px;">
+				<div id="plot-scatter" class="sans"></div>
+				<p class="caption">
+					fig. 1d: Raw data
+				</p>
 			</div>
+			<div class="grid_3 2ndRow" style="margin-top: 25px;">
+				<div id="plot-hits" class="sans"></div>
+				<p class="caption">
+					fig. 1d: click position
+				</p>
+			</div>
+			
+			
 			<div class="clear"></div>
 			
 			<div id="data" class="prefix_1 grid_7"></div>
@@ -61,9 +76,21 @@
 					Cardigan narwhal reprehenderit ethnic, direct trade squid officia. Brooklyn culpa quinoa ex narwhal bicycle rights. Cardigan irony lo-fi iphone in, you probably haven't heard of them gastropub keffiyeh artisan lomo pitchfork post-ironic hella. Raw denim DIY lo-fi godard, sustainable ethnic sed four loko craft beer messenger bag viral next level gastropub. Dolor vegan sartorial post-ironic aliquip voluptate. Synth in commodo, scenester post-ironic non single-origin coffee sapiente odio put a bird on it. Retro cliche beard sunt pour-over, leggings american apparel ut ex raw denim.
 				</p>
 				
-				<p>
-					<strong>Group 2: Otilia Danet, Trine Eilersen, Jesper Tved, Simon Wallner</strong>
+				<div id="scatterEffective" class="sans"></div>
+				<p class="caption">
+					figure: Corrected scatter plot
 				</p>
+				
+				<p>
+					Cardigan narwhal reprehenderit ethnic, direct trade squid officia. Brooklyn culpa quinoa ex narwhal bicycle rights. Cardigan irony lo-fi iphone in, you probably haven't heard of them gastropub keffiyeh artisan lomo pitchfork post-ironic hella. Raw denim DIY lo-fi godard, sustainable ethnic sed four loko craft beer messenger bag viral next level gastropub. Dolor vegan sartorial post-ironic aliquip voluptate. Synth in commodo, scenester post-ironic non single-origin coffee sapiente odio put a bird on it. Retro cliche beard sunt pour-over, leggings american apparel ut ex raw denim.
+				</p>
+				
+				<p>
+					<strong>Group 2: Simon Wallner, Otilia Danet, Trine Eilersen, Jesper Tved</strong>
+				</p>
+				
+				<p>
+					This project is licensed under the permissive MIT license, and we encourage everyone to correct conceptual errors, contribute it, or share it umong their peers. --> fork on github, --> contact info
 			</div>
 			
 					<script type="text/javascript" src="fitts-law.js"></script>

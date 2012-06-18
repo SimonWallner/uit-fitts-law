@@ -24,11 +24,12 @@ function makeDimension(width, height, top, right, bottom, left) {
 }
 
 // set up dimensions for the plotting.
-var testDimension = makeDimension(620, 400, 30, 30, 30, 30);
-var plotPositionDimension = makeDimension(300, 198, 30, 30, 30, 30);
+var testDimension = makeDimension(460, 460, 30, 30, 30, 30);
+var plotPositionDimension = makeDimension(220, 200, 30, 30, 30, 30);
 var plotVelocitiesDimension = plotPositionDimension;
-var plotHitsDimension = makeDimension(140, 140, 15, 15, 15, 15);
-var plotScatterDimension = makeDimension(300, 198, 30, 30, 30, 50);
+var plotHitsDimension = plotPositionDimension;
+var plotScatterDimension = makeDimension(220, 200, 30, 30, 30, 50);
+var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
 
 function rHit(r, rTarget) {
 	return ((plotHitsDimension.innerWidth / 2) / rTarget) * r;
@@ -404,6 +405,14 @@ scatterSVG = d3.select('#plot-scatter').append('svg')
 
 scatterGroup = scatterSVG.append('g')
 	.attr('transform', 'translate('+ (plotScatterDimension.left) + ',' + plotScatterDimension.top + ' )');
+
+scatterEffectiveSVG = d3.select('#scatterEffective').append('svg')
+	.attr('width', scatterEffectiveDimension.width)
+	.attr('height', scatterEffectiveDimension.height)
+	.call(bgRect, scatterEffectiveDimension);
+
+scatterEffectiveGroup = scatterEffectiveSVG.append('g')
+	.attr('transform', 'translate('+ (scatterEffectiveDimension.left) + ',' + scatterEffectiveDimension.top + ' )');
 
 
 

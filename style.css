@@ -34,11 +34,15 @@ strong {
 	font-size: 0.8em;
 }
 
-div.ui-slider {
-	margin-top: 4px;
-	margin-bottom: 44px;
+div.2ndRow {
+	margin-top: 20px;
 }
 
+p.caption {
+	font-family: 'Open Sans';
+	font-weight: 700;
+	font-size: 0.8em;
+}
 
 
 
