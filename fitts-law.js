@@ -59,7 +59,8 @@ var fittsTest = {
 
 	isoPositions: [],
 	currentPosition: 0,
-	isoLimits: {minD: 50, maxD: 150, minR:5 , maxR: 50},
+	isoLimits: {minD: 60, maxD: 150, minR:5 , maxR: 50},
+	isoParams: {num: 15, distance: 100, radius: 20, randomise: false},
 	
 	currentPath: [],
 	active: false,
@@ -96,6 +97,9 @@ var fittsTest = {
 	},
 	
 	updateISOCircles: function() {
+		this.generateISOPositions(this.isoParams.num,
+			this.isoParams.distance,
+			this.isoParams.radius);
 
 		var circles = testAreaSVG.selectAll('circle').data(this.isoPositions);
 		
@@ -117,6 +121,9 @@ var fittsTest = {
 			.transition()
 				.attr('r', 0)
 				.remove();
+				
+		fittsTest.currentPosition = 0;
+		fittsTest.generateTarget();
 },
 	
 	generateISOPositions: function(num, d, r) {
@@ -527,18 +534,30 @@ fittsTest.active = false;
 
 fittsTest.generateISOPositions(15, 150, 10);
 fittsTest.updateISOCircles();
-fittsTest.generateTarget();
+d3.select('#sliderDistanceValue').text(fittsTest.isoParams.distance);
+d3.select('#sliderRadiusValue').text(fittsTest.isoParams.radius);
 
 // setup sliders
 $("#sliderDistance").slider({
 	min: fittsTest.isoLimits.minD,
 	max: fittsTest.isoLimits.maxD,
 	step: 1,
-	value: 100,
+	value: fittsTest.isoParams.distance,
 	slide: function(event, ui) {
-		fittsTest.generateISOPositions(15, ui.value, 10);
+		fittsTest.isoParams.distance = ui.value;
 		fittsTest.updateISOCircles();
-		fittsTest.currentPosition = 0;
-		fittsTest.generateTarget();
+		d3.select('#sliderDistanceValue').text(ui.value);
+	}
+});
+
+$("#sliderRadius").slider({
+	min: fittsTest.isoLimits.minR,
+	max: fittsTest.isoLimits.maxR,
+	step: 1,
+	value: fittsTest.isoParams.radius,
+	slide: function(event, ui) {
+		fittsTest.isoParams.radius = ui.value;
+		fittsTest.updateISOCircles();
+		d3.select('#sliderRadiusValue').text(ui.value);
 	}
 });

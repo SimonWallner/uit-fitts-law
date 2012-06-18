@@ -87,5 +87,6 @@ line.regression {
 }
 
 circle.iso {
-	fill: #ededed;
+	fill: #ddd;
+	opacity: 0.5;
 }
