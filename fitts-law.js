@@ -59,6 +59,7 @@ var fittsTest = {
 
 	isoPositions: [],
 	currentPosition: 0,
+	isoLimits: {minD: 50, maxD: 150, minR:5 , maxR: 50},
 	
 	currentPath: [],
 	active: false,
@@ -73,19 +74,30 @@ var fittsTest = {
 		this.target = this.isoPositions[this.currentPosition];
 		this.currentPosition = (this.currentPosition + Math.ceil(this.isoPositions.length/2)) % this.isoPositions.length;
 		
-		testAreaSVG.append('svg:circle')
-			.attr('id', 'target')
-			.attr('cx', this.target.x)
-			.attr('cy', this.target.y)
-			.attr('r', this.target.r)
-			.style('fill', 'red');
+		var target = testAreaSVG.selectAll('#target').data([this.target]);
+		
+		var insert = function(d) {
+			d.attr('cx', function(d) { return d.x; })
+			.attr('cy', function(d) { return d.y; })
+			.attr('r', function(d) { return d.r; });
+		}
+
+		target.enter()
+			.append('circle')
+				.attr('id', 'target')
+				.style('fill', 'red')
+				.call(insert);
+									
+		target.transition()
+				.call(insert);
+
 		
 		this.active = true;
 	},
 	
 	updateISOCircles: function() {
 
-		var circles = testAreaSVG.selectAll('circle').data(this.isoPositions)
+		var circles = testAreaSVG.selectAll('circle').data(this.isoPositions);
 		
 		var insert = function(d) {
 			d.attr('cx', function(d) { return d.x; })
@@ -95,16 +107,14 @@ var fittsTest = {
 
 		circles.enter()
 			.append('circle')
-			.attr('class', 'iso')
-			.call(insert);
+				.attr('class', 'iso')
+				.call(insert);
 									
 		circles.transition()
-			.duration(500)
 			.call(insert);
 		
 		circles.exit()
 			.transition()
-				.duration(500)
 				.attr('r', 0)
 				.remove();
 },
@@ -120,7 +130,10 @@ var fittsTest = {
 	},
 	
 	removeTarget: function() {
-		testAreaSVG.selectAll('#target').remove();
+		testAreaSVG.selectAll('#target').data([])
+			.exit()
+				.remove();
+				
 		this.active = false;
 		this.currentPath = [];
 	},
@@ -515,3 +528,17 @@ fittsTest.active = false;
 fittsTest.generateISOPositions(15, 150, 10);
 fittsTest.updateISOCircles();
 fittsTest.generateTarget();
+
+// setup sliders
+$("#sliderDistance").slider({
+	min: fittsTest.isoLimits.minD,
+	max: fittsTest.isoLimits.maxD,
+	step: 1,
+	value: 100,
+	slide: function(event, ui) {
+		fittsTest.generateISOPositions(15, ui.value, 10);
+		fittsTest.updateISOCircles();
+		fittsTest.currentPosition = 0;
+		fittsTest.generateTarget();
+	}
+});
