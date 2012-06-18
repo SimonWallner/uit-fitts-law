@@ -44,6 +44,10 @@ p.caption {
 	font-size: 0.8em;
 }
 
+.border {
+	border: solid black 1px;
+}
+
 
 
 /*SVG styles*/

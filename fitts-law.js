@@ -24,7 +24,7 @@ function makeDimension(width, height, top, right, bottom, left) {
 }
 
 // set up dimensions for the plotting.
-var testDimension = makeDimension(460, 460, 30, 30, 30, 30);
+var testDimension = makeDimension(620, 400, 30, 30, 30, 30);
 var plotPositionDimension = makeDimension(220, 200, 30, 30, 30, 30);
 var plotVelocitiesDimension = plotPositionDimension;
 var plotHitsDimension = plotPositionDimension;
@@ -51,7 +51,7 @@ var scatterY = d3.scale.linear()
 
 
 var fittsTest = {
-	target: {x: 0, y: 0, r: 20},
+	target: {x: 0, y: 0, r: 10},
 	start: {x: 0, y: 0, t: 0},
 	last: {},
 	
