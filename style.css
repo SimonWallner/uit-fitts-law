@@ -56,6 +56,20 @@ hr {
 
 #dataSets .active {
 	color: #fff;
+	background-image: url('tile16.png');
+}
+
+#dataSets div {
+	border-radius: 4px;
+	margin: 2px;
+	padding: 2px 8px 2px 8px;
+}
+#dataSets button {
+	margin-left: 120px;
+}
+
+#sliderRadius, #sliderDistance {
+	margin-top: -10px;
 }
 
 
