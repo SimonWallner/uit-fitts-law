@@ -72,6 +72,8 @@ var fittsTest = {
 	currentDataSet: 0,
 	dataCnt: 0,
 	
+	colour: d3.scale.category10(),
+	
 	sumID: 0,
 	sumTime: 0,
 	
@@ -219,13 +221,12 @@ var fittsTest = {
 		var id = shannon(distance(data.target, data.start), data.target.r * 2);
 		
 		if (dt < 3000) { // skip if obvious outlier
-			this.data.push({time: dt,
-					           ID: id});
+			this.data[this.currentDataSet].data.push({time: dt, ID: id});
 			this.sumID += id;
 			this.sumTime += dt;
 				
 			var circles = scatterGroup.selectAll('circle')
-						.data(this.data);
+						.data(this.data[this.currentDataSet].data);
 					
 			circles.enter()
 				.append('circle')
@@ -238,36 +239,36 @@ var fittsTest = {
 							.attr('r', 3);
 			
 			// regression, yeay!
-			var mID = this.sumID / this.data.length;
-			var mt = this.sumTime / this.data.length;
-			var ssxy = 0;
-			var ssxx = 0;
-			
-			for (var i = 0; i < this.data.length; i++) {
-				ssxy += (this.data[i].ID - mID) * (this.data[i].time - mt);
-				ssxx += Math.pow(this.data[i].ID - mID, 2);
-			}			
-			
-			var b = (ssxy / ssxx) || 0;
-			var a = mt - b * mID;
-			
-			var setValues = function(d) {
-				return d
-					.attr('x1', 0)
-					.attr('x2', plotScatterDimension.innerWidth)
-					.attr('y1', function(d) { return scatterY(d.y1); })
-					.attr('y2', function(d) { return scatterY(d.y2); })
-			}
-			
-			var regression = scatterGroup.selectAll('line.regression')
-				.data([{y1:a, y2: a + b * 5}]);
-			
-			regression.enter().append('line')
-				.attr('class', 'regression')
-				.call(setValues);
-			
-			regression.transition()
-				.call(setValues);
+			// var mID = this.sumID / this.data[this.currentDataSet].data.length;
+			// 		var mt = this.sumTime / this.data[this.currentDataSet].data.length;
+			// 		var ssxy = 0;
+			// 		var ssxx = 0;
+			// 		
+			// 		for (var i = 0; i < this.data[this.currentDataSet].data.length; i++) {
+			// 			ssxy += (this.data[this.currentDataSet].data[i].ID - mID) * (this.data[this.currentDataSet].data[i].time - mt);
+			// 			ssxx += Math.pow(this.data[this.currentDataSet].data[i].ID - mID, 2);
+			// 		}			
+			// 		
+			// 		var b = (ssxy / ssxx) || 0;
+			// 		var a = mt - b * mID;
+			// 		
+			// 		var setValues = function(d) {
+			// 			return d
+			// 				.attr('x1', 0)
+			// 				.attr('x2', plotScatterDimension.innerWidth)
+			// 				.attr('y1', function(d) { return scatterY(d.y1); })
+			// 				.attr('y2', function(d) { return scatterY(d.y2); })
+			// 		}
+			// 		
+			// 		var regression = scatterGroup.selectAll('line.regression')
+			// 			.data([{y1:a, y2: a + b * 5}]);
+			// 		
+			// 		regression.enter().append('line')
+			// 			.attr('class', 'regression')
+			// 			.call(setValues);
+			// 		
+			// 		regression.transition()
+			// 			.call(setValues);
 		}
 		
 		var A = data.start;
@@ -349,13 +350,15 @@ var fittsTest = {
 	addDataSet: function() {
 		this.dataCnt++;
 		var num = this.dataCnt;
+		var colour = this.colour(randomAB(0, 10));
 		
-		this.data[num] = {data: []};
+		this.data[num] = {data: [], colour: colour};
 		
 		this.currentDataSet = num
 		var div = d3.select('#dataSets').append('div')
 			.attr('id', 'dataSet' + num)
-			.text('Data Set ' + num + ' ');
+			.text('Data Set ' + num + ' ')
+			.style('background-color', colour);
 		
 		var buttonID ='removeDataSet' + num;
 		div.append('button')
