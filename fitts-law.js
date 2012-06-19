@@ -222,23 +222,23 @@ var fittsTest = {
 		
 		if (dt < 3000) { // skip if obvious outlier
 			this.data[this.currentDataSet].data.push({time: dt, ID: id});
-			this.sumID += id;
-			this.sumTime += dt;
-				
-			var circles = scatterGroup.selectAll('circle')
-						.data(this.data[this.currentDataSet].data);
-					
-			circles.enter()
-				.append('circle')
-					.attr('cx', function(d) { return scatterX(d.ID); })
-					.attr('cy', function(d) { return scatterY(d.time); })
-					.attr('r', 0)
-						.transition()
-							.duration(200)
-							.ease('bounce')
-							.attr('r', 3);
+
+			scatterGroup.append('circle')
+				.attr('class', 'cat' + this.currentDataSet)
+				.style('fill', this.data[this.currentDataSet].colour)
+				.attr('cx', scatterX(id))
+				.attr('cy', scatterY(dt))
+				.attr('r', 0)
+					.transition()
+						.duration(200)
+						.ease('bounce')
+						.attr('r', 3);				
+
 			
 			// regression, yeay!
+			
+			// this.sumID += id;
+			// this.sumTime += dt;
 			// var mID = this.sumID / this.data[this.currentDataSet].data.length;
 			// 		var mt = this.sumTime / this.data[this.currentDataSet].data.length;
 			// 		var ssxy = 0;
@@ -370,6 +370,7 @@ var fittsTest = {
 		
 		$('#' + buttonID).click(function() {
 			that.deleteDataSet(num);
+			fittsTest.active = false;
 		});
 		
 		$('#dataSet' + num).click(function() {
@@ -377,6 +378,7 @@ var fittsTest = {
 				that.currentDataSet = num;
 				that.highlightDataSet(num);				
 			}
+			fittsTest.active = false;
 
 		})
 			
@@ -704,4 +706,5 @@ $('#randomiseCheckbox').change(function(event) {
 
 $('#addDataSetButton').click(function() {
 	fittsTest.addDataSet();
+	fittsTest.active = false;
 });
