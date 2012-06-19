@@ -451,9 +451,9 @@ var fittsTest = {
 		
 		// process data
 
-		for (var key in that.data) {
+		for (var key in that.data) { // for each data set
 			var groups = [];
-			for (var i = 0; i < that.data[key].data.length; i++) {
+			for (var i = 0; i < that.data[key].data.length; i++) { // for each datum
 				var datum = that.data[key].data[i];
 				var groupID = datum.distance.toString() + datum.width.toString();
 				if (!groups[groupID]) {
@@ -473,6 +473,10 @@ var fittsTest = {
 
 			var newData = [];
 			for (var group in groups) {
+				if (groups[group].length < 3) { // exlcude groups with length < 3
+					continue;
+				}
+					
 				var xEffective = 4.133 * Math.sqrt(variance(groups[group], function(d) { return d.projectedHitOffsetX; }))
 				var yEffective = 4.133 * Math.sqrt(variance(groups[group], function(d) { return d.projectedHitOffsetY; }))
 				var dEffective = mean(groups[group], function(d) { return d.realDistance; });
@@ -539,42 +543,7 @@ var fittsTest = {
 			
 			regression.transition()
 				.call(makeLine);
-		}
-		
-		// regression, yeay!
-		// this.sumID += id;
-		// this.sumTime += dt;
-		// var mID = this.sumID / this.data[this.currentDataSet].data.length;
-		// 		var mt = this.sumTime / this.data[this.currentDataSet].data.length;
-		// 		var ssxy = 0;
-		// 		var ssxx = 0;
-		// 		
-		// 		for (var i = 0; i < this.data[this.currentDataSet].data.length; i++) {
-		// 			ssxy += (this.data[this.currentDataSet].data[i].ID - mID) * (this.data[this.currentDataSet].data[i].time - mt);
-		// 			ssxx += Math.pow(this.data[this.currentDataSet].data[i].ID - mID, 2);
-		// 		}			
-		// 		
-		// 		var b = (ssxy / ssxx) || 0;
-		// 		var a = mt - b * mID;
-		// 		
-		// 		var setValues = function(d) {
-		// 			return d
-		// 				.attr('x1', 0)
-		// 				.attr('x2', plotScatterDimension.innerWidth)
-		// 				.attr('y1', function(d) { return scatterY(d.y1); })
-		// 				.attr('y2', function(d) { return scatterY(d.y2); })
-		// 		}
-		// 		
-		// 		var regression = scatterGroup.selectAll('line.regression')
-		// 			.data([{y1:a, y2: a + b * 5}]);
-		// 		
-		// 		regression.enter().append('line')
-		// 			.attr('class', 'regression')
-		// 			.call(setValues);
-		// 		
-		// 		regression.transition()
-		// 			.call(setValues);
-		
+		}		
 	}
 };
 
