@@ -68,6 +68,14 @@ var scaleY = d3.scale.linear()
 	.domain([-50, 50])
 	.range([plotPositionDimension.innerHeight, 0]);
 
+var effScatterX = d3.scale.linear()
+	.domain([0.5, 5.5])
+	.range([0, scatterEffectiveDimension.innerWidth]);
+
+var effScatterY = d3.scale.linear()
+	.domain([3000, 0])
+	.range([0, scatterEffectiveDimension.innerHeight]);
+
 var LIVE_STAY = 5000;
 var UPDATE_DELAY = 3000;
 
@@ -403,7 +411,12 @@ var fittsTest = {
 					.duration(500)
 						.attr('r', 0)
 						.remove();
-				
+			
+			scatterEffectiveGroup.selectAll('.cat' + num)
+				.transition()
+					.duration(500)
+						.style('opacity', 0)
+						.remove();
 			
 			if (num == this.currentDataSet) {
 				var first = parseInt(assFirstKey(this.data));
@@ -464,12 +477,36 @@ var fittsTest = {
 				
 				for (var i = 0; i < groups[group].length; i++) {
 					var datum = groups[group][i];
-					datum.We = Math.min(xEffective, yEffective); // SMALLER-OF model (MacKenzie, Buxton 92)
-					datum.De = dEffective;
+					var We = Math.min(xEffective, yEffective); // SMALLER-OF model (MacKenzie, Buxton 92)
+					var De = dEffective;
+					datum.IDe = shannon(De, We);
 					newData.push(datum);
 				}
 			}
-			var foo = 42;
+			
+			
+			// insert stuff in SVG
+			var colour = that.data[key].colour;
+			
+			var insert = function(d) {
+				d.attr('cx', function(d) { return effScatterX(d.IDe); })
+				.attr('cy', function(d) { return effScatterY(d.time); })
+				.attr('r', 5);
+			}
+			
+			var circles = scatterEffectiveGroup.selectAll('circle.cat' + key)
+				.data(newData);
+			
+			circles.enter()
+				.append('circle')
+					.attr('class', 'cat' + key)
+					.style('fill', colour)
+					.style('opacity', 0.5)
+					.call(insert);
+			
+			circles.transition()
+				.duration(500)
+					.call(insert);
 		}
 		
 		// regression, yeay!
@@ -521,7 +558,7 @@ function cov(data, extractorA, extractorB) {
 	
 	var cov = 0;
 	for (var i = 0; i < data.length; i++) {
-		cov += (extractorA(data[i]) - mA) * (extractorB(data[i]), - mB);
+		cov += (extractorA(data[i]) - mA) * (extractorB(data[i]) - mB);
 	}
 	
 	return cov / (data.length - 1);
@@ -735,6 +772,30 @@ var scatterSVG = d3.select('#plot-scatter').append('svg')
 var scatterGroup = scatterSVG.append('g')
 	.attr('transform', 'translate('+ (plotScatterDimension.left) + ',' + plotScatterDimension.top + ' )');
 
+// define Axes.
+var xAxis = d3.svg.axis()
+	.scale(scatterX)
+	.ticks(7)
+	.tickSize(6, 3, 0);
+
+var yAxis = d3.svg.axis()
+	.scale(scatterY)
+	.ticks(10)
+	.tickSize(6, 3, 6)
+
+
+// print axes
+scatterGroup.append("g")
+    .attr("class", "axis")
+	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
+    .call(xAxis.tickSize(plotScatterDimension.innerHeight).orient("bottom"));
+
+scatterGroup.append("g")
+    .attr("class", "axis")
+	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
+    .call(yAxis.tickSize(-plotScatterDimension.innerWidth).orient("left"));
+
+
 
 var scatterEffectiveSVG = d3.select('#scatterEffective').append('svg')
 	.attr('width', scatterEffectiveDimension.width)
@@ -743,6 +804,31 @@ var scatterEffectiveSVG = d3.select('#scatterEffective').append('svg')
 
 var scatterEffectiveGroup = scatterEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (scatterEffectiveDimension.left) + ',' + scatterEffectiveDimension.top + ' )');
+
+// define Axes.
+var effXAxis = d3.svg.axis()
+	.scale(effScatterX)
+	.ticks(10)
+	.tickSize(6, 3, 0);
+
+var effYAxis = d3.svg.axis()
+	.scale(effScatterY)
+	.ticks(10)
+	.tickSize(6, 3, 6)
+
+
+// print axes
+scatterEffectiveGroup.append("g")
+    .attr("class", "axis")
+	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
+    .call(effXAxis.tickSize(scatterEffectiveDimension.innerHeight).orient("bottom"));
+
+scatterEffectiveGroup.append("g")
+    .attr("class", "axis")
+	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
+    .call(effYAxis.tickSize(-scatterEffectiveDimension.innerWidth).orient("left"));
+
+
 
 
 var throughputSVG = d3.select('#throughput').append('svg')
@@ -773,28 +859,7 @@ var speedEffectiveGroup = speedEffectiveSVG.append('g')
 
 
 
-// define Axes.
-var xAxis = d3.svg.axis()
-	.scale(scatterX)
-	.ticks(7)
-	.tickSize(6, 3, 0);
 
-var yAxis = d3.svg.axis()
-	.scale(scatterY)
-	.ticks(10)
-	.tickSize(6, 3, 6)
-
-
-// print axes
-scatterGroup.append("g")
-    .attr("class", "axis")
-	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
-    .call(xAxis.tickSize(plotScatterDimension.innerHeight).orient("bottom"));
-
-scatterGroup.append("g")
-    .attr("class", "axis")
-	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
-    .call(yAxis.tickSize(-plotScatterDimension.innerWidth).orient("left"));
 
 
 
