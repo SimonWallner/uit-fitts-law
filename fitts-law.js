@@ -268,9 +268,6 @@ var fittsTest = {
 			
 			regression.transition()
 				.call(setValues);
-			
-			
-			
 		}
 		
 		var A = data.start;
@@ -351,11 +348,11 @@ var fittsTest = {
 	
 	addDataSet: function() {
 		this.dataCnt++;
-		this.data.push({id: this.dataCnt, data: []});
-
 		var num = this.dataCnt;
 		
-		this.currentDataSet = this.data.length - 1
+		this.data[num] = {data: []};
+		
+		this.currentDataSet = num
 		var div = d3.select('#dataSets').append('div')
 			.attr('id', 'dataSet' + num)
 			.text('Data Set ' + num + ' ');
@@ -373,29 +370,53 @@ var fittsTest = {
 			that.deleteDataSet(num);
 		});
 			
-
-		// mark active data set
+		this.highlightDataSet(num);
 		// add colour
 		
 	},
 	
 	deleteDataSet: function(num) {
-		if (this.data.length == 1) {
+		if (assSize(this.data) == 1)
+		{
 			alert('Cannot delete data set! Create another data set first.')
-		} else {
+		} else
+		{	
 			d3.select('#dataSet' + num).remove();
-			for (var i = 0; i < this.data.length; i++) {
-				if (this.data[i].id == num) {
-					this.data.splice(i, 1);
-					break;
-				}
-			}	
+			delete this.data[num];
+			
+			if (num == this.currentDataSet) {
+				var first = parseInt(assFirstKey(this.data));
+				this.currentDataSet = first;
+				this.highlightDataSet(first);
+			}
 		}
+	},
+	
+	highlightDataSet: function(num) {
+		d3.selectAll('#dataSets div')
+			.attr('class', '');
+		d3.select('#dataSet' + num)
+			.attr('class', 'active')
 	}
 };
 
 function randomAB(a, b) {
 	return a + Math.random() * (b - a);
+}
+
+function assSize(assArr) {
+	var size = 0;
+	for (var _ in assArr) {
+		size++;
+	}
+	return size;
+}
+
+function assFirstKey(assArr) {
+	for (var key in assArr) {
+		return key;
+		break;
+	}
 }
 
 

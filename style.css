@@ -54,6 +54,10 @@ hr {
 	margin: 15px;
 }
 
+#dataSets .active {
+	background-color: lightgreen;
+}
+
 
 
 /*SVG styles*/
