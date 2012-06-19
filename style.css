@@ -122,11 +122,6 @@ line {
   shape-rendering: crispEdges;
 }
 
-line.regression {
-	stroke: red;
-	stroke-width:2px;
-}
-
 circle.iso {
 	fill: #ddd;
 	opacity: 0.5;

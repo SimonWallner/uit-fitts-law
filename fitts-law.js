@@ -33,6 +33,10 @@ var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
 var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 30);
 var speedEffectiveDimension = positionEffectiveDimension;
 
+var LIVE_STAY = 5000;
+var MAX_TIME = 2000;
+var UPDATE_DELAY = MAX_TIME;
+
 function rHit(r, rTarget) {
 	return ((plotHitsDimension.innerWidth / 2) / rTarget) * r;
 };
@@ -49,7 +53,7 @@ var scatterX = d3.scale.linear()
 	.range([0, plotScatterDimension.innerWidth]);
 
 var scatterY = d3.scale.linear()
-	.domain([3000, 0])
+	.domain([MAX_TIME, 0])
 	.range([0, plotScatterDimension.innerHeight]);
 
 var scaleT = d3.scale.linear()
@@ -73,11 +77,9 @@ var effScatterX = d3.scale.linear()
 	.range([0, scatterEffectiveDimension.innerWidth]);
 
 var effScatterY = d3.scale.linear()
-	.domain([3000, 0])
+	.domain([MAX_TIME, 0])
 	.range([0, scatterEffectiveDimension.innerHeight]);
 
-var LIVE_STAY = 5000;
-var UPDATE_DELAY = 3000;
 
 var fittsTest = {
 	target: {x: 0, y: 0, r: 10},
@@ -256,7 +258,7 @@ var fittsTest = {
 
 		var dt = data.hit.t - data.start.t;
 	
-		if (dt < 3000)  // skip if obvious outlier
+		if (dt < MAX_TIME)  // skip if obvious outlier
 		{
 			var dist = distance(data.target, data.start);
 			var id = shannon(dist, data.target.w);
@@ -507,6 +509,36 @@ var fittsTest = {
 			circles.transition()
 				.duration(500)
 					.call(insert);
+					
+					
+			// regression
+			var b = cov(newData,
+				function(d) { return d.time; },
+				function(d) { return d.IDe});
+			
+			var mT = mean(newData, function(d) { return d.time; });
+			var mIDe = mean(newData, function(d) { return d.IDe; });
+			var a = mT - b * mIDe;
+			
+			var makeLine = function(d) {
+				return d
+					.attr('x1', 0)
+					.attr('x2', scatterEffectiveDimension.innerWidth)
+					.attr('y1', function(d) { return effScatterY(d.y1); })
+					.attr('y2', function(d) { return effScatterY(d.y2); })
+			}
+			
+			var regression = scatterEffectiveGroup.selectAll('line.cat' + key)
+				.data([{y1:a + b * 0.5, y2: a + b * 5.5}]);
+			
+			regression.enter().append('line')
+				.attr('class', 'cat' + key)
+				.style('stroke', colour)
+				.style('stroke-width', 2)
+				.call(makeLine);
+			
+			regression.transition()
+				.call(makeLine);
 		}
 		
 		// regression, yeay!
@@ -780,7 +812,7 @@ var xAxis = d3.svg.axis()
 
 var yAxis = d3.svg.axis()
 	.scale(scatterY)
-	.ticks(10)
+	.ticks(6)
 	.tickSize(6, 3, 6)
 
 
