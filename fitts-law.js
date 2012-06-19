@@ -69,6 +69,9 @@ var fittsTest = {
 	// contains the test data
 	// i.e. tupels with amplitude, width, time, start, target, hit, ID
 	data: [],
+	currentDataSet: 0,
+	dataCnt: 0,
+	
 	sumID: 0,
 	sumTime: 0,
 	
@@ -344,12 +347,57 @@ var fittsTest = {
 		this.updateISOCircles();
 		d3.select('#sliderDistanceValue').text(this.isoParams.distance);
 		d3.select('#sliderRadiusValue').text(this.isoParams.radius);
+	},
+	
+	addDataSet: function() {
+		this.dataCnt++;
+		this.data.push({id: this.dataCnt, data: []});
+
+		var num = this.dataCnt;
+		
+		this.currentDataSet = this.data.length - 1
+		var div = d3.select('#dataSets').append('div')
+			.attr('id', 'dataSet' + num)
+			.text('Data Set ' + num + ' ');
+		
+		
+		var buttonID ='removeDataSet' + num;
+		div.append('button')
+			.attr('id', buttonID)
+			.attr('type', 'button')
+			.text('delete!');
+			
+		var that = this;
+		
+		$('#' + buttonID).click(function() {
+			that.deleteDataSet(num);
+		});
+			
+
+		// mark active data set
+		// add colour
+		
+	},
+	
+	deleteDataSet: function(num) {
+		if (this.data.length == 1) {
+			alert('Cannot delete data set! Create another data set first.')
+		} else {
+			d3.select('#dataSet' + num).remove();
+			for (var i = 0; i < this.data.length; i++) {
+				if (this.data[i].id == num) {
+					this.data.splice(i, 1);
+					break;
+				}
+			}	
+		}
 	}
 };
 
 function randomAB(a, b) {
 	return a + Math.random() * (b - a);
 }
+
 
 /**
  * Project a point q onto the line p0-p1
@@ -565,12 +613,15 @@ scatterGroup.append("g")
     .call(yAxis.tickSize(-plotScatterDimension.innerWidth).orient("left"));
 
 
-fittsTest.active = false;
 
+// init code
+// should probably go somewhere else though. 
+fittsTest.active = false;
 fittsTest.generateISOPositions(15, 150, 10);
 fittsTest.updateISOCircles();
 d3.select('#sliderDistanceValue').text(fittsTest.isoParams.distance);
 d3.select('#sliderRadiusValue').text(fittsTest.isoParams.radius);
+fittsTest.addDataSet();
 
 // setup sliders
 $("#sliderDistance").slider({
@@ -610,3 +661,7 @@ $('#randomiseButton').click(function() {
 $('#randomiseCheckbox').change(function(event) {
 	fittsTest.isoParams.randomise = $(this).attr('checked');
 })
+
+$('#addDataSetButton').click(function() {
+	fittsTest.addDataSet();
+});

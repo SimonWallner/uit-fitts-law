@@ -48,6 +48,12 @@ p.caption {
 	border: solid black 1px;
 }
 
+hr {
+	height: 1px;
+	background-color: #ccc;
+	margin: 15px;
+}
+
 
 
 /*SVG styles*/
