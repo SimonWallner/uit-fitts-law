@@ -396,6 +396,13 @@ var fittsTest = {
 			d3.select('#dataSet' + num).remove();
 			delete this.data[num];
 			
+			scatterGroup.selectAll('.cat' + num)
+				.transition()
+					.duration(500)
+						.attr('r', 0)
+						.remove();
+				
+			
 			if (num == this.currentDataSet) {
 				var first = parseInt(assFirstKey(this.data));
 				this.currentDataSet = first;
