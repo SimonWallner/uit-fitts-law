@@ -59,6 +59,14 @@ var scaleV = d3.scale.linear()
 	.domain([0, 50])
 	.range([plotVelocitiesDimension.innerHeight, 0]);
 
+var scaleX = d3.scale.linear()
+	.domain([-20, 300])
+	.range([0, plotPositionDimension.innerWidth]);
+
+var scaleY = d3.scale.linear()
+	.domain([-50, 50])
+	.range([plotPositionDimension.innerHeight, 0]);
+
 var LIVE_STAY = 5000;
 
 var fittsTest = {
@@ -69,8 +77,8 @@ var fittsTest = {
 	isoPositions: [],
 	currentPosition: 0,
 	currentCount: 0,
-	isoLimits: {minD: 60, maxD: 150, minR:5 , maxR: 50},
-	isoParams: {num: 9, distance: 100, radius: 20, randomise: true},
+	isoLimits: {minD: 120, maxD: 300, minW:10 , maxW: 100},
+	isoParams: {num: 9, distance: 200, width: 50, randomise: true},
 	
 	currentPath: [],
 	active: false,
@@ -95,7 +103,7 @@ var fittsTest = {
 		var insert = function(d) {
 			d.attr('cx', function(d) { return d.x; })
 			.attr('cy', function(d) { return d.y; })
-			.attr('r', function(d) { return d.r; });
+			.attr('r', function(d) { return d.w / 2; });
 		}
 
 		target.enter()
@@ -116,14 +124,14 @@ var fittsTest = {
 		
 		this.generateISOPositions(this.isoParams.num,
 			this.isoParams.distance,
-			this.isoParams.radius);
+			this.isoParams.width);
 
 		var circles = testAreaSVG.selectAll('circle').data(this.isoPositions);
 		
 		var insert = function(d) {
 			d.attr('cx', function(d) { return d.x; })
 			.attr('cy', function(d) { return d.y; })
-			.attr('r', function(d) { return d.r; });
+			.attr('r', function(d) { return d.w / 2; });
 		}
 
 		circles.enter()
@@ -144,13 +152,13 @@ var fittsTest = {
 		this.active = false;
 },
 	
-	generateISOPositions: function(num, d, r) {
+	generateISOPositions: function(num, d, w) {
 		this.isoPositions = [];
 		
 		for (var i = 0; i < num; i++) {
-			this.isoPositions[i] = {x: testDimension.cx + (d * Math.cos((2 * Math.PI * i) / num)),
-				y: testDimension.cy + (d * Math.sin((2 * Math.PI * i) / num)),
-				r: r};
+			this.isoPositions[i] = {x: testDimension.cx + ((d/2) * Math.cos((2 * Math.PI * i) / num)),
+				y: testDimension.cy + ((d/2) * Math.sin((2 * Math.PI * i) / num)),
+				w: w};
 		}
 	},
 	
@@ -165,7 +173,7 @@ var fittsTest = {
 	
 	mouseClicked: function(x, y) {
 		
-		if (distance({x: x, y: y}, this.target) < this.target.r) {
+		if (distance({x: x, y: y}, this.target) < (this.target.w / 2)) {
 			this.addDataPoint({start: this.start,
 							   target: this.target,
 							   path: this.currentPath,
@@ -227,7 +235,7 @@ var fittsTest = {
 			return;
 		
 		var dt = data.hit.t - data.start.t;
-		var id = shannon(distance(data.target, data.start), data.target.r * 2);
+		var id = shannon(distance(data.target, data.start), data.target.w);
 		
 		if (dt < 3000) { // skip if obvious outlier
 			this.data[this.currentDataSet].data.push({time: dt, ID: id});
@@ -291,8 +299,8 @@ var fittsTest = {
 		
 		
 		plotHitsGroup.append('circle')
-			.attr('cx', rHit(hit.x, data.target.r))
-			.attr('cy', rHit(hit.y, data.target.r))
+			.attr('cx', rHit(hit.x, data.target.w / 2))
+			.attr('cy', rHit(hit.y, data.target.w / 2))
 			.attr('r', 6)
 			.style('fill', 'red')
 			.style('opacity', 1)
@@ -317,10 +325,10 @@ var fittsTest = {
 		
 			plotPositionGroup.append('svg:line')
 				.attr('class', 'path')
-				.attr('x1', last.x / 2)
-				.attr('x2', x / 2)
-				.attr('y1', last.y)
-				.attr('y2', y)
+				.attr('x1', scaleX(last.x))
+				.attr('x2', scaleX(x))
+				.attr('y1', scaleY(last.y))
+				.attr('y2', scaleY(y))
 				.style('stroke', v(speed/ dt))
 				.transition()
 					.duration(LIVE_STAY)
@@ -350,14 +358,14 @@ var fittsTest = {
 	
 	randomiseParams: function() {
 		this.isoParams.distance = Math.floor(randomAB(this.isoLimits.minD, this.isoLimits.maxD));
-		this.isoParams.radius = Math.floor(randomAB(this.isoLimits.minR, this.isoLimits.maxR));
+		this.isoParams.width = Math.floor(randomAB(this.isoLimits.minW, this.isoLimits.maxW));
 
 		$('#sliderDistance').slider('value', this.isoParams.distance);
-		$('#sliderRadius').slider('value', this.isoParams.radius);
+		$('#sliderWidth').slider('value', this.isoParams.width);
 
 		this.updateISOCircles();
 		d3.select('#sliderDistanceValue').text(this.isoParams.distance);
-		d3.select('#sliderRadiusValue').text(this.isoParams.radius);
+		d3.select('#sliderWidthValue').text(this.isoParams.width);
 	},
 	
 	addDataSet: function() {
@@ -573,7 +581,7 @@ plotPositionSVG.append('line')
 	.style('shape-rendering','crispEdges');	
 
 var plotPositionGroup = plotPositionSVG.append('g')
-	.attr('transform', 'translate('+ plotPositionDimension.left + ', ' + plotPositionDimension.cy + ')');
+	.attr('transform', 'translate('+ plotPositionDimension.left + ', ' + plotPositionDimension.top + ')');
 
 
 	
@@ -697,7 +705,7 @@ fittsTest.active = false;
 fittsTest.generateISOPositions(15, 150, 10);
 fittsTest.updateISOCircles();
 d3.select('#sliderDistanceValue').text(fittsTest.isoParams.distance);
-d3.select('#sliderRadiusValue').text(fittsTest.isoParams.radius);
+d3.select('#sliderWidthValue').text(fittsTest.isoParams.width);
 fittsTest.addDataSet();
 
 // setup sliders
@@ -715,15 +723,15 @@ $("#sliderDistance").slider({
 	}
 });
 
-$("#sliderRadius").slider({
-	min: fittsTest.isoLimits.minR,
-	max: fittsTest.isoLimits.maxR,
+$("#sliderWidth").slider({
+	min: fittsTest.isoLimits.minW,
+	max: fittsTest.isoLimits.maxW,
 	step: 1,
-	value: fittsTest.isoParams.radius,
+	value: fittsTest.isoParams.width,
 	slide: function(event, ui) {
-		fittsTest.isoParams.radius = ui.value;
+		fittsTest.isoParams.width = ui.value;
 		fittsTest.updateISOCircles();
-		d3.select('#sliderRadiusValue').text(ui.value);
+		d3.select('#sliderWidthValue').text(ui.value);
 		$('#randomiseCheckbox').attr('checked', false);
 		fittsTest.isoParams.randomise = false;
 	}
