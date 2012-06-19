@@ -98,6 +98,7 @@ var fittsTest = {
 	
 	generateTarget: function() {
 		this.target = this.isoPositions[this.currentPosition];
+		this.target.distance = this.isoParams.distance;
 		this.currentPosition = (this.currentPosition + Math.ceil(this.isoPositions.length/2)) % this.isoPositions.length;
 		
 		var target = testAreaSVG.selectAll('#target').data([this.target]);
@@ -252,7 +253,8 @@ var fittsTest = {
 			var dist = distance(data.target, data.start);
 			var id = shannon(dist, data.target.w);
 
-			this.data[this.currentDataSet].data.push({time: dt, distance: dist, width: data.target.w});
+			this.data[this.currentDataSet].data.push({time: dt, distance: data.target.distance, width: data.target.w, hit: data.hit,
+				start: data.start, target: data.target});
 
 			scatterGroup.append('circle')
 				.attr('class', 'cat' + this.currentDataSet)
@@ -419,6 +421,7 @@ var fittsTest = {
 	},
 	
 	updatePlots: function(that) {
+		// a little I candy :D
 		d3.select('body').append('div')
 			.attr('class', 'msg')
 			.text('updating plots...')
@@ -431,11 +434,42 @@ var fittsTest = {
 		// for each data set
 		// compute We and IDe and Throughput for each category
 		
+		// process data
+
 		for (var key in that.data) {
 			var groups = [];
 			for (var i = 0; i < that.data[key].data.length; i++) {
-				var groupID = '' + that.data[key].data[i].distance + that.data[key].data[i].width
+				var datum = that.data[key].data[i];
+				var groupID = datum.distance.toString() + datum.width.toString();
+				if (!groups[groupID]) {
+					groups[groupID] = [];
+				}
+				
+				var q = project(datum.start, datum.target, datum.hit);
+				// var x = distance(q, datum.start) * sign(q.t);
+				var y = distance(q, datum.hit) * isLeft(datum.start, datum.target, datum.hit);
+				
+				datum.realDistance = distance(datum.start, datum.hit); // use real distance here.
+				datum.projectedHitOffsetX = distance(q, datum.target) * sign(q.t - 1);
+				datum.projectedHitOffsetY = y;
+				
+				groups[groupID].push(datum);
 			}
+
+			var newData = [];
+			for (var group in groups) {
+				var xEffective = 4.133 * Math.sqrt(variance(groups[group], function(d) { return d.projectedHitOffsetX; }))
+				var yEffective = 4.133 * Math.sqrt(variance(groups[group], function(d) { return d.projectedHitOffsetY; }))
+				var dEffective = mean(groups[group], function(d) { return d.realDistance; });
+				
+				for (var i = 0; i < groups[group].length; i++) {
+					var datum = groups[group][i];
+					datum.We = Math.min(xEffective, yEffective); // SMALLER-OF model (MacKenzie, Buxton 92)
+					datum.De = dEffective;
+					newData.push(datum);
+				}
+			}
+			var foo = 42;
 		}
 		
 		// regression, yeay!
@@ -474,6 +508,36 @@ var fittsTest = {
 		
 	}
 };
+
+// _empirical_ covariance
+function cov(data, extractorA, extractorB) {
+	
+	if (data.length <= 1) { // no covariance for 0 or 1 element.
+		return 0;
+	}
+
+	var mA = mean(data, extractorA);
+	var mB = mean(data, extractorB);
+	
+	var cov = 0;
+	for (var i = 0; i < data.length; i++) {
+		cov += (extractorA(data[i]) - mA) * (extractorB(data[i]), - mB);
+	}
+	
+	return cov / (data.length - 1);
+}
+
+function variance(data, extractor) {
+	return cov(data, extractor, extractor);
+}
+
+function mean(data, extractor) {
+	var sum = 0;
+	for (var i = 0; i < data.length; i++) {
+		sum += extractor(data[i]);
+	}
+	return sum / data.length;
+}
 
 function randomAB(a, b) {
 	return a + Math.random() * (b - a);
