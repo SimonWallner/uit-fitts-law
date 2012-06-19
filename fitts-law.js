@@ -51,6 +51,7 @@ var scatterY = d3.scale.linear()
 	.domain([3000, 0])
 	.range([0, plotScatterDimension.innerHeight]);
 
+var LIVE_STAY = 5000;
 
 var fittsTest = {
 	target: {x: 0, y: 0, r: 10},
@@ -204,7 +205,7 @@ var fittsTest = {
 				.attr('y2', newPoint.y)
 				.style('stroke', v(speed))
 				.transition()
-					.duration(5000)
+					.duration(LIVE_STAY)
 					.style('stroke-opacity', 0)
 					.remove();
 				
@@ -275,7 +276,12 @@ var fittsTest = {
 		var B = data.target;
 		var path = data.path;
 		
-		var hit = minus(data.hit, data.target);
+		var hit = {}
+		var q = project(A, B, data.hit);
+		hit.x = distance(q, B) * sign(q.t - 1);
+		hit.y = distance(q, data.hit) * isLeft(A, B, data.hit);
+		
+		
 		plotHitsGroup.append('circle')
 			.attr('cx', rHit(hit.x, data.target.r))
 			.attr('cy', rHit(hit.y, data.target.r))
@@ -283,7 +289,7 @@ var fittsTest = {
 			.style('fill', 'red')
 			.style('opacity', 1)
 			.transition()
-				.duration(3000)
+				.duration(LIVE_STAY)
 					.ease('linear')
 					.attr('r', 2)
 					.style('opacity', 0)
@@ -310,7 +316,7 @@ var fittsTest = {
 					.attr('y2', y)
 					.style('stroke', v(speed/ dt))
 					.transition()
-						.duration(3000)
+						.duration(LIVE_STAY)
 						.style('stroke-opacity', 0)
 						.remove();
 				
@@ -322,7 +328,7 @@ var fittsTest = {
 					.attr('y2', -speed * 2)
 					.style('stroke', v(speed / dt))
 					.transition()
-						.duration(3000)
+						.duration(LIVE_STAY)
 						.style('stroke-opacity', 0)
 						.remove();
 					
@@ -579,6 +585,21 @@ plotHitsGroup.append('circle')
 	.attr('cy', 0)
 	.attr('r', plotHitsDimension.innerWidth/2)
 	.style('opacity', 0.1)
+plotHitsGroup.append('line')
+	.attr('x1', 0)
+	.attr('y1', 0)
+	.attr('x2', -plotHitsDimension.cx)
+	.attr('y2', 0);
+plotHitsGroup.append('line')
+	.attr('x1', 0)
+	.attr('y1', 0)
+	.attr('x2', -10)
+	.attr('y2', -10);
+plotHitsGroup.append('line')
+	.attr('x1', 0)
+	.attr('y1', 0)
+	.attr('x2', -10)
+	.attr('y2', 10);
 
 	
 	

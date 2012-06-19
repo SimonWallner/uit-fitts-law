@@ -76,9 +76,9 @@ hr {
 
 /*SVG styles*/
 
-line.path {
+line {
 	stroke: black;
-	shape-rendering: ;
+/*	shape-rendering: crispEdges;*/
 }
 
 .back {
