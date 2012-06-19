@@ -37,7 +37,8 @@ function rHit(r, rTarget) {
 	return ((plotHitsDimension.innerWidth / 2) / rTarget) * r;
 };
 
-var maxV = 1; // pixel/ms
+var maxV = 2; // pixel/ms
+
 function v(v) {
 	var colour = 'rgb(' + clampInt(0, 255, (v / maxV) * 255) + ', 0, 0)';
 	return colour;
@@ -68,6 +69,7 @@ var scaleY = d3.scale.linear()
 	.range([plotPositionDimension.innerHeight, 0]);
 
 var LIVE_STAY = 5000;
+var UPDATE_DELAY = 3000;
 
 var fittsTest = {
 	target: {x: 0, y: 0, r: 10},
@@ -83,8 +85,6 @@ var fittsTest = {
 	currentPath: [],
 	active: false,
 	
-	// contains the test data
-	// i.e. tupels with amplitude, width, time, start, target, hit, ID
 	data: [],
 	currentDataSet: 0,
 	dataCnt: 0,
@@ -93,6 +93,8 @@ var fittsTest = {
 	
 	sumID: 0,
 	sumTime: 0,
+	
+	updateTimeoutHandle: undefined,
 	
 	generateTarget: function() {
 		this.target = this.isoPositions[this.currentPosition];
@@ -202,9 +204,18 @@ var fittsTest = {
 	
 	mouseMoved: function(x, y) {
 		if (this.active) {
+			// skip if the mouse did actually not move
+			// that should practically never happen...
 			if (x == this.last.x && y == this.last.y) {
-				return
+				return;
 			}
+			
+			// set timeout for updating plots
+			if (this.updateTimeoutHandle) {
+				window.clearTimeout(this.updateTimeoutHandle);
+			}
+			this.updateTimeoutHandle = window.setTimeout(this.updatePlots, UPDATE_DELAY, this);
+			
 			
 			var newPoint = {x: x, y: y, t: (new Date).getTime()}
 			this.currentPath.push(newPoint)
@@ -233,12 +244,15 @@ var fittsTest = {
 		// add point to data array for plotting into ID/time scatter plot
 		if (this.active == false)
 			return;
-		
+
 		var dt = data.hit.t - data.start.t;
-		var id = shannon(distance(data.target, data.start), data.target.w);
-		
-		if (dt < 3000) { // skip if obvious outlier
-			this.data[this.currentDataSet].data.push({time: dt, ID: id});
+	
+		if (dt < 3000)  // skip if obvious outlier
+		{
+			var dist = distance(data.target, data.start);
+			var id = shannon(dist, data.target.w);
+
+			this.data[this.currentDataSet].data.push({time: dt, distance: dist, width: data.target.w});
 
 			scatterGroup.append('circle')
 				.attr('class', 'cat' + this.currentDataSet)
@@ -251,108 +265,73 @@ var fittsTest = {
 						.ease('bounce')
 						.attr('r', 3);				
 
-			
-			// regression, yeay!
-			
-			// this.sumID += id;
-			// this.sumTime += dt;
-			// var mID = this.sumID / this.data[this.currentDataSet].data.length;
-			// 		var mt = this.sumTime / this.data[this.currentDataSet].data.length;
-			// 		var ssxy = 0;
-			// 		var ssxx = 0;
-			// 		
-			// 		for (var i = 0; i < this.data[this.currentDataSet].data.length; i++) {
-			// 			ssxy += (this.data[this.currentDataSet].data[i].ID - mID) * (this.data[this.currentDataSet].data[i].time - mt);
-			// 			ssxx += Math.pow(this.data[this.currentDataSet].data[i].ID - mID, 2);
-			// 		}			
-			// 		
-			// 		var b = (ssxy / ssxx) || 0;
-			// 		var a = mt - b * mID;
-			// 		
-			// 		var setValues = function(d) {
-			// 			return d
-			// 				.attr('x1', 0)
-			// 				.attr('x2', plotScatterDimension.innerWidth)
-			// 				.attr('y1', function(d) { return scatterY(d.y1); })
-			// 				.attr('y2', function(d) { return scatterY(d.y2); })
-			// 		}
-			// 		
-			// 		var regression = scatterGroup.selectAll('line.regression')
-			// 			.data([{y1:a, y2: a + b * 5}]);
-			// 		
-			// 		regression.enter().append('line')
-			// 			.attr('class', 'regression')
-			// 			.call(setValues);
-			// 		
-			// 		regression.transition()
-			// 			.call(setValues);
-		}
 		
-		var A = data.start;
-		var B = data.target;
-		var path = data.path;
+			var A = data.start;
+			var B = data.target;
+			var path = data.path;
 		
-		var hit = {}
-		var q = project(A, B, data.hit);
-		hit.x = distance(q, B) * sign(q.t - 1);
-		hit.y = distance(q, data.hit) * isLeft(A, B, data.hit);
+			var hit = {}
+			var q = project(A, B, data.hit);
+			hit.x = distance(q, B) * sign(q.t - 1);
+			hit.y = distance(q, data.hit) * isLeft(A, B, data.hit);
 		
 		
-		plotHitsGroup.append('circle')
-			.attr('cx', rHit(hit.x, data.target.w / 2))
-			.attr('cy', rHit(hit.y, data.target.w / 2))
-			.attr('r', 6)
-			.style('fill', 'red')
-			.style('opacity', 1)
-			.transition()
-				.duration(LIVE_STAY)
-					.ease('linear')
-					.attr('r', 2)
-					.style('opacity', 0)
-					.remove();
-		
-		var last = { x: 0, y: 0, t: data.start.t, v: 0};
-		for (var i = 0; i < path.length; i++) {
-			var p = path[i];
-			
-			var q = project(A, B, p);
-			var x = distance(q, A) * sign(q.t);
-			var y = distance(q, p) * isLeft(A, B, p);
-
-			var dt = p.t - last.t;
-			var dist = distance(last, {x: x, y: y});
-			var speed = dist;// / dt;
-		
-			plotPositionGroup.append('svg:line')
-				.attr('class', 'path')
-				.attr('x1', scaleX(last.x))
-				.attr('x2', scaleX(x))
-				.attr('y1', scaleY(last.y))
-				.attr('y2', scaleY(y))
-				.style('stroke', v(speed/ dt))
+			plotHitsGroup.append('circle')
+				.attr('cx', rHit(hit.x, data.target.w / 2))
+				.attr('cy', rHit(hit.y, data.target.w / 2))
+				.attr('r', 6)
+				.style('fill', 'red')
+				.style('opacity', 1)
 				.transition()
 					.duration(LIVE_STAY)
-					.style('stroke-opacity', 0)
-					.remove();
+						.ease('linear')
+						.attr('r', 2)
+						.style('opacity', 0)
+						.remove();
+		
+			var last = { x: 0, y: 0, t: data.start.t, v: 0};
+			for (var i = 0; i < path.length; i++) {
+				var p = path[i];
 			
-			plotVelocitiesGroup.append('svg:line')
-				.attr('class', 'path')
-				.attr('x1', scaleT(last.t - data.start.t))
-				.attr('x2', scaleT(p.t - data.start.t))
-				.attr('y1', scaleV(last.v))
-				.attr('y2', scaleV(speed))
+				var q = project(A, B, p);
+				var x = distance(q, A) * sign(q.t);
+				var y = distance(q, p) * isLeft(A, B, p);
 
-				.style('stroke', v(speed / dt))
-				.transition()
-					.duration(LIVE_STAY)
-					.style('stroke-opacity', 0)
-					.remove();
+				var dt = p.t - last.t;
+				var dist = distance(last, {x: x, y: y});
+				var speed = dist;// / dt;
+		
+				plotPositionGroup.append('svg:line')
+					.attr('class', 'path')
+					.attr('x1', scaleX(last.x))
+					.attr('x2', scaleX(x))
+					.attr('y1', scaleY(last.y))
+					.attr('y2', scaleY(y))
+					.style('stroke', v(speed/ dt))
+					.transition()
+						.duration(LIVE_STAY)
+						.style('stroke-opacity', 0)
+						.remove();
+			
+				plotVelocitiesGroup.append('svg:line')
+					.attr('class', 'path')
+					.attr('x1', scaleT(last.t - data.start.t))
+					.attr('x2', scaleT(p.t - data.start.t))
+					.attr('y1', scaleV(last.v))
+					.attr('y2', scaleV(speed))
+
+					.style('stroke', v(speed / dt))
+					.transition()
+						.duration(LIVE_STAY)
+						.style('stroke-opacity', 0)
+						.remove();
 					
-			var last = {}
-			last.x = x;
-			last.y = y;
-			last.t = p.t;
-			last.v = speed;
+				var last = {}
+				last.x = x;
+				last.y = y;
+				last.t = p.t;
+				last.v = speed;
+			}
 		}
 	},
 	
@@ -437,6 +416,62 @@ var fittsTest = {
 			.attr('class', '');
 		d3.select('#dataSet' + num)
 			.attr('class', 'active')
+	},
+	
+	updatePlots: function(that) {
+		d3.select('body').append('div')
+			.attr('class', 'msg')
+			.text('updating plots...')
+			.style('opacity', 1)
+			.transition()
+				.duration(2000)
+					.style('opacity', 0)
+					.remove();
+
+		// for each data set
+		// compute We and IDe and Throughput for each category
+		
+		for (var key in that.data) {
+			var groups = [];
+			for (var i = 0; i < that.data[key].data.length; i++) {
+				var groupID = '' + that.data[key].data[i].distance + that.data[key].data[i].width
+			}
+		}
+		
+		// regression, yeay!
+		// this.sumID += id;
+		// this.sumTime += dt;
+		// var mID = this.sumID / this.data[this.currentDataSet].data.length;
+		// 		var mt = this.sumTime / this.data[this.currentDataSet].data.length;
+		// 		var ssxy = 0;
+		// 		var ssxx = 0;
+		// 		
+		// 		for (var i = 0; i < this.data[this.currentDataSet].data.length; i++) {
+		// 			ssxy += (this.data[this.currentDataSet].data[i].ID - mID) * (this.data[this.currentDataSet].data[i].time - mt);
+		// 			ssxx += Math.pow(this.data[this.currentDataSet].data[i].ID - mID, 2);
+		// 		}			
+		// 		
+		// 		var b = (ssxy / ssxx) || 0;
+		// 		var a = mt - b * mID;
+		// 		
+		// 		var setValues = function(d) {
+		// 			return d
+		// 				.attr('x1', 0)
+		// 				.attr('x2', plotScatterDimension.innerWidth)
+		// 				.attr('y1', function(d) { return scatterY(d.y1); })
+		// 				.attr('y2', function(d) { return scatterY(d.y2); })
+		// 		}
+		// 		
+		// 		var regression = scatterGroup.selectAll('line.regression')
+		// 			.data([{y1:a, y2: a + b * 5}]);
+		// 		
+		// 		regression.enter().append('line')
+		// 			.attr('class', 'regression')
+		// 			.call(setValues);
+		// 		
+		// 		regression.transition()
+		// 			.call(setValues);
+		
 	}
 };
 

@@ -72,6 +72,23 @@ hr {
 	margin-top: -10px;
 }
 
+div.msg {
+	width: 200px;
+/*	height: 40px;*/
+	position: fixed;
+	top: 10px;
+	left:50%;
+	margin-left: -100px;
+	background-color: #FFE736;
+	border-radius: 10px;
+	padding: 10px;
+	color: #fff;
+	text-align: center;
+	vertical-align: center;
+	font-family: 'Open Sans';
+	font-weight: 700;
+}
+
 
 
 /*SVG styles*/
