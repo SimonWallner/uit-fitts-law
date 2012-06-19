@@ -357,7 +357,6 @@ var fittsTest = {
 			.attr('id', 'dataSet' + num)
 			.text('Data Set ' + num + ' ');
 		
-		
 		var buttonID ='removeDataSet' + num;
 		div.append('button')
 			.attr('id', buttonID)
@@ -369,6 +368,14 @@ var fittsTest = {
 		$('#' + buttonID).click(function() {
 			that.deleteDataSet(num);
 		});
+		
+		$('#dataSet' + num).click(function() {
+			if (assIsKey(num, that.data)) {
+				that.currentDataSet = num;
+				that.highlightDataSet(num);				
+			}
+
+		})
 			
 		this.highlightDataSet(num);
 		// add colour
@@ -417,6 +424,15 @@ function assFirstKey(assArr) {
 		return key;
 		break;
 	}
+}
+
+function assIsKey(needle, assArr) {
+	for (var key in assArr) {
+		if (needle == key) {
+			return true;
+		}
+	}
+	return false;
 }
 
 
