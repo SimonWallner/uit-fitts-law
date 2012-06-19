@@ -51,6 +51,14 @@ var scatterY = d3.scale.linear()
 	.domain([3000, 0])
 	.range([0, plotScatterDimension.innerHeight]);
 
+var scaleT = d3.scale.linear()
+	.domain([0, 1000])
+	.range([0, plotVelocitiesDimension.innerWidth]);
+
+var scaleV = d3.scale.linear()
+	.domain([0, 50])
+	.range([plotVelocitiesDimension.innerHeight, 0]);
+
 var LIVE_STAY = 5000;
 
 var fittsTest = {
@@ -295,45 +303,44 @@ var fittsTest = {
 					.style('opacity', 0)
 					.remove();
 		
-		var last = {};
+		var last = { x: 0, y: 0, t: data.start.t, v: 0};
 		for (var i = 0; i < path.length; i++) {
 			var p = path[i];
 			
 			var q = project(A, B, p);
 			var x = distance(q, A) * sign(q.t);
 			var y = distance(q, p) * isLeft(A, B, p);
-			
+
 			var dt = p.t - last.t;
 			var dist = distance(last, {x: x, y: y});
 			var speed = dist;// / dt;
+		
+			plotPositionGroup.append('svg:line')
+				.attr('class', 'path')
+				.attr('x1', last.x / 2)
+				.attr('x2', x / 2)
+				.attr('y1', last.y)
+				.attr('y2', y)
+				.style('stroke', v(speed/ dt))
+				.transition()
+					.duration(LIVE_STAY)
+					.style('stroke-opacity', 0)
+					.remove();
 			
-			if (last) {
-				plotPositionGroup.append('svg:line')
-					.attr('class', 'path')
-					.attr('x1', last.x / 2)
-					.attr('x2', x / 2)
-					.attr('y1', last.y)
-					.attr('y2', y)
-					.style('stroke', v(speed/ dt))
-					.transition()
-						.duration(LIVE_STAY)
-						.style('stroke-opacity', 0)
-						.remove();
-				
-				plotVelocitiesGroup.append('svg:line')
-					.attr('class', 'path')
-					.attr('x1', last.x / 2)
-					.attr('x2', x / 2)
-					.attr('y1', -last.v * 2)
-					.attr('y2', -speed * 2)
-					.style('stroke', v(speed / dt))
-					.transition()
-						.duration(LIVE_STAY)
-						.style('stroke-opacity', 0)
-						.remove();
+			plotVelocitiesGroup.append('svg:line')
+				.attr('class', 'path')
+				.attr('x1', scaleT(last.t - data.start.t))
+				.attr('x2', scaleT(p.t - data.start.t))
+				.attr('y1', scaleV(last.v))
+				.attr('y2', scaleV(speed))
+
+				.style('stroke', v(speed / dt))
+				.transition()
+					.duration(LIVE_STAY)
+					.style('stroke-opacity', 0)
+					.remove();
 					
-			}
-			
+			var last = {}
 			last.x = x;
 			last.y = y;
 			last.t = p.t;
@@ -609,7 +616,7 @@ var plotVelocitiesSVG = d3.select('#plot-velocities').append('svg')
 	.call(bgRect, plotVelocitiesDimension);
 
 var plotVelocitiesGroup = plotVelocitiesSVG.append('g')
-	.attr('transform', 'translate('+ (plotVelocitiesDimension.left) + ', ' + (plotVelocitiesDimension.top + plotVelocitiesDimension.innerHeight) + ')');
+	.attr('transform', 'translate('+ plotVelocitiesDimension.left + ', ' + plotVelocitiesDimension.top + ')');
 
 
 
