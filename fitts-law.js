@@ -32,7 +32,7 @@ var plotScatterDimension = makeDimension(220, 200, 30, 30, 30, 50);
 var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
 var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 30);
 var speedEffectiveDimension = positionEffectiveDimension;
-var histDimension = makeDimension(540, 300, 30, 30, 30, 30);
+var histDimension = makeDimension(540, 300, 30, 30, 30, 50);
 
 var LIVE_STAY = 5000;
 var MAX_TIME = 2000;
@@ -80,6 +80,8 @@ var effScatterX = d3.scale.linear()
 var effScatterY = d3.scale.linear()
 	.domain([MAX_TIME, 0])
 	.range([0, scatterEffectiveDimension.innerHeight]);
+
+
 	
 
 
@@ -572,10 +574,12 @@ var fittsTest = {
 			
 			var histThroughput = d3.layout.histogram()
 				.bins(20)
-				.range([0.5,5.5])
+				.range([0,10])
 				.value(function(d){return d.throughput;})
 				
 			var throughputHistogramData = histThroughput(newData)
+			
+	//		histYMax = d3.max(throughputHistogramData, function(d) { return d.y; });
 						
 			var histX = d3.scale.ordinal()
 				.domain(throughputHistogramData.map(function(d) { return d.x; }))	
@@ -594,10 +598,29 @@ var fittsTest = {
 			
 			var makeRect = function(d) {
 				d.attr('x', function(offset) { return function(d) { return (histX(d.x) + offset); }; }(xOffset))
-				.attr('y', function(scale) { return function(d) { return (scale(d.y) - 1); }; }(histY))
+				.attr('y', function(scale) { return function(d) { return (scale(d.y)); }; }(histY))
 				.attr('width', (histX.rangeBand() / numDataSets) - 1)
-				.attr('height', function(scale) { return function(d) { return (scale(0) - scale(d.y)) + 1; }; }(histY));
+				.attr('height', function(scale) { return function(d) { return (scale(0) - scale(d.y)); }; }(histY));
 			}
+			
+			var histXAxis = d3.svg.axis()
+				.scale(histX)
+				.ticks(2);
+
+			var histYAxis = d3.svg.axis()
+				.scale(histY)
+				.ticks(5)
+			throughputGroup.selectAll("g.axis").remove()	
+			
+			throughputGroup.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(0," + histDimension.innerHeight + ")")
+				.call(histXAxis.tickSize(6,3,6).orient("bottom"));	
+	
+			// throughputGroup.append("g")
+				// .attr("class", "axis")
+				// .call(histYAxis.tickSize(-histDimension.innerWidth).orient("left"));
+			
 			throughputRect.enter()
 				.append('rect')
 				.attr('class', 'cat' + key)
@@ -851,6 +874,8 @@ var yAxis = d3.svg.axis()
 	.tickSize(6, 3, 6)
 
 
+	
+	
 // print axes
 scatterGroup.append("g")
     .attr("class", "axis")
@@ -895,16 +920,16 @@ scatterEffectiveGroup.append("g")
 	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
     .call(effYAxis.tickSize(-scatterEffectiveDimension.innerWidth).orient("left"));
 
-
-
-
 var throughputSVG = d3.select('#throughput').append('svg')
 	.attr('width', histDimension.width)
 	.attr('height', histDimension.height)
 	.call(bgRect, histDimension);
 
 var throughputGroup = throughputSVG.append('g')
-	.attr('transform', 'translate('+ (histDimension.left) + ',' + histDimension.top + ' )');
+	.attr('transform', 'translate('+ (histDimension.left) + ',' + histDimension.top + ' )')
+
+//	.call(histYAxis.tickSize(histDimension.innerWidth).orient("left"));
+
 	
 
 var positionEffectiveSVG = d3.select('#positionEffective').append('svg')

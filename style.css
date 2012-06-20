@@ -133,6 +133,11 @@ line {
   stroke: #000;
   shape-rendering: crispEdges;
 }
+path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;  
+}
 
 .grid path, .grid line {
 	fill: none;
