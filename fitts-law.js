@@ -593,10 +593,10 @@ var fittsTest = {
 			var xOffset = (histX.rangeBand() / numDataSets) * dataSetIndex;
 			
 			var makeRect = function(d) {
-				d.attr('x', function(d) { return (histX(d.x) + xOffset); })
-				.attr('y', function(d) { return (histY(d.y) - 1); })
+				d.attr('x', function(offset) { return function(d) { return (histX(d.x) + offset); }; }(xOffset))
+				.attr('y', function(scale) { return function(d) { return (scale(d.y) - 1); }; }(histY))
 				.attr('width', (histX.rangeBand() / numDataSets) - 1)
-				.attr('height', function(d) { return (histY(0) - histY(d.y)) + 1; });
+				.attr('height', function(scale) { return function(d) { return (scale(0) - scale(d.y)) + 1; }; }(histY));
 			}
 			throughputRect.enter()
 				.append('rect')
