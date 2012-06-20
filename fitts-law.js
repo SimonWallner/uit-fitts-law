@@ -462,8 +462,11 @@ var fittsTest = {
 		// compute We and IDe and Throughput for each category
 
 		// process data
-
+		var dataSetIndex = -1; // evil hack to make it start at 0 then.
 		for (var key in that.data) { // for each data set
+			
+			dataSetIndex++;
+			
 			var groups = [];
 			for (var i = 0; i < that.data[key].data.length; i++) { // for each datum
 				var datum = that.data[key].data[i];
@@ -567,24 +570,25 @@ var fittsTest = {
 			var throughputHistogramData = histThroughput(newData)
 						
 			var histX = d3.scale.ordinal()
-				.domain(throughputHistogramData.map(function(d){return d.x}))	
+				.domain(throughputHistogramData.map(function(d) { return d.x; }))	
 				.rangeRoundBands([0, histDimension.innerWidth]);
 	
-			var histY = d3.scale.ordinal()
-				.domain([d3.max(throughputHistogramData,function(d){return d.y}),0])
-				.range([0, histDimension.innerHeight]);
+			var histY = d3.scale.linear()
+				.domain([0, d3.max(throughputHistogramData, function(d) { return d.y; })])
+				.range([histDimension.innerHeight, 0]);
 				
 			var throughputRect = throughputGroup.selectAll('rect.cat' + key)
-				.data(throughputHistogramData)
+				.data(throughputHistogramData);
 				
 			
-				
+			var numDataSets = assSize(that.data);
+			var xOffset = (histX.rangeBand() / numDataSets) * dataSetIndex;
+			
 			var makeRect = function(d) {
-				d.attr('x', function(d) {return histX(d.x)})
-				.attr('y', function(d) {return histY(d.y)})
-				.attr('width', 5)
-				.attr('height', function(d) {return histY(d.y)})
-				;
+				d.attr('x', function(d) { return (histX(d.x) + xOffset); })
+				.attr('y', function(d) { return (histY(d.y) - 1); })
+				.attr('width', (histX.rangeBand() / numDataSets) - 1)
+				.attr('height', function(d) { return (histY(0) - histY(d.y)) + 1; });
 			}
 			throughputRect.enter()
 				.append('rect')
