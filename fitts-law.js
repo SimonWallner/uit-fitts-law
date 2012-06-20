@@ -81,13 +81,7 @@ var effScatterY = d3.scale.linear()
 	.domain([MAX_TIME, 0])
 	.range([0, scatterEffectiveDimension.innerHeight]);
 	
-var histX = d3.scale.ordinal()
-	.domain([0.5,5.5])
-	.rangeRoundBands([0, histDimension.innerWidth]);
-	
-var histY = d3.scale.ordinal()
-	.domain([100,0])
-	.range([0, histDimension.innerHeight]);
+
 
 
 var fittsTest = {
@@ -563,16 +557,27 @@ var fittsTest = {
 			regression.transition()
 				.call(makeLine);
 				
+
 			
 			var histThroughput = d3.layout.histogram()
 				.bins(20)
 				.range([0.5,5.5])
-				.value(function(d){return 100;})
+				.value(function(d){return d.throughput;})
 				
 			var throughputHistogramData = histThroughput(newData)
+						
+			var histX = d3.scale.ordinal()
+				.domain(throughputHistogramData.map(function(d){return d.x}))	
+				.rangeRoundBands([0, histDimension.innerWidth]);
+	
+			var histY = d3.scale.ordinal()
+				.domain([d3.max(throughputHistogramData,function(d){return d.y}),0])
+				.range([0, histDimension.innerHeight]);
 				
 			var throughputRect = throughputGroup.selectAll('rect.cat' + key)
 				.data(throughputHistogramData)
+				
+			
 				
 			var makeRect = function(d) {
 				d.attr('x', function(d) {return histX(d.x)})
