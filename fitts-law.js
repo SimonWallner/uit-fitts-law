@@ -427,11 +427,19 @@ var fittsTest = {
 						.style('opacity', 0)
 						.remove();
 			
+			throughputGroup.selectAll('rect.cat' + num)
+				.transition()
+					.duration(500)
+						.attr('width', 0)
+						.remove();
+			
 			if (num == this.currentDataSet) {
 				var first = parseInt(assFirstKey(this.data));
 				this.currentDataSet = first;
 				this.highlightDataSet(first);
 			}
+			
+			this.updatePlots(this);
 		}
 	},
 	
