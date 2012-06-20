@@ -382,6 +382,10 @@ var fittsTest = {
 	},
 	
 	addDataSet: function() {
+		
+		// first update the plots
+		this.updatePlots(this);
+		
 		this.dataCnt++;
 		var num = this.dataCnt;
 		var colour = this.colour(randomAB(0, 10));
@@ -447,6 +451,18 @@ var fittsTest = {
 					.duration(500)
 						.attr('width', 0)
 						.remove();
+						
+			positionEffectiveGroup.selectAll('line.cat' + num)
+				.transition()
+					.duration(500)
+						.style('opacity', 0)
+						.remove()
+			
+			speedEffectiveGroup.selectAll('line.cat' + num)
+				.transition()
+					.duration(500)
+						.style('opacity', 0)
+						.remove()
 			
 			if (num == this.currentDataSet) {
 				var first = parseInt(assFirstKey(this.data));
@@ -677,16 +693,16 @@ var fittsTest = {
 					var dist = distance(last, {x: x, y: y});
 					var speed = dist;// / dt;
 		
-					positionEffectiveGroup.append('svg:line')
-						.attr('class', 'path')
+					positionEffectiveGroup.append('line')
+						.attr('class', 'path cat' + key)
 						.attr('x1', effPositionX(last.x + offset))
 						.attr('x2', effPositionX(x + offset))
 						.attr('y1', effPositionY(last.y))
 						.attr('y2', effPositionY(y))
 						.style('stroke', colour)
 			
-					speedEffectiveGroup.append('svg:line')
-						.attr('class', 'path')
+					speedEffectiveGroup.append('line')
+						.attr('class', 'path cat' + key)
 						.attr('x1', effSpeedX(last.t - A.t))
 						.attr('x2', effSpeedX(p.t - A.t))
 						.attr('y1', effSpeedY(last.v))
