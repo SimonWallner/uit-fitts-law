@@ -32,6 +32,7 @@ var plotScatterDimension = makeDimension(220, 200, 30, 30, 30, 50);
 var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
 var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 30);
 var speedEffectiveDimension = positionEffectiveDimension;
+var histDimension = makeDimension(540, 300, 30, 30, 30, 30);
 
 var LIVE_STAY = 5000;
 var MAX_TIME = 2000;
@@ -79,6 +80,14 @@ var effScatterX = d3.scale.linear()
 var effScatterY = d3.scale.linear()
 	.domain([MAX_TIME, 0])
 	.range([0, scatterEffectiveDimension.innerHeight]);
+	
+var histX = d3.scale.ordinal()
+	.domain([0.5,5.5])
+	.rangeRoundBands([0, histDimension.innerWidth]);
+	
+var histY = d3.scale.ordinal()
+	.domain([100,0])
+	.range([0, histDimension.innerHeight]);
 
 
 var fittsTest = {
@@ -215,10 +224,6 @@ var fittsTest = {
 		}
 		else {
 			this.miss++;
-			this.missDataPoint({start: this.start,
-				target: this.target,
-				path: this.currentPath,
-				hit: {x: x, y: y, t: (new Date).getTime()}});
 		}
 	},
 	
@@ -260,26 +265,6 @@ var fittsTest = {
 		}
 	},
 	
-	missDataPoint: function(data) {
-		if (this.active == false)
-			return;
-
-		var dt = data.hit.t - data.start.t;
-		var dist = distance(data.target, data.start);
-		var id = shannon(dist, data.target.w);		
-	
-		throughputGroup.append('circle')
-		.attr('class', 'cat' + this.currentDataSet)
-		.style('fill', 'red')
-		.attr('cx', scatterX(id))
-		.attr('cy', scatterY(dt))
-		.attr('r', 0)
-			.transition()
-				.duration(200)
-				.ease('bounce')
-				.attr('r', 3);
-	},
-	
 	addDataPoint: function(data) {
 		// add point to data array for plotting into ID/time scatter plot
 		if (this.active == false)
@@ -305,17 +290,6 @@ var fittsTest = {
 						.duration(200)
 						.ease('bounce')
 						.attr('r', 3);		
-						
-			throughputGroup.append('circle')
-				.attr('class', 'cat' + this.currentDataSet)
-				.style('fill', this.data[this.currentDataSet].colour)
-				.attr('cx', scatterX(id))
-				.attr('cy', scatterY(dt))
-				.attr('r', 0)
-					.transition()
-						.duration(200)
-						.ease('bounce')
-						.attr('r', 3);
 		
 			var A = data.start;
 			var B = data.target;
@@ -530,6 +504,7 @@ var fittsTest = {
 					var We = Math.min(xEffective, yEffective); // SMALLER-OF model (MacKenzie, Buxton 92)
 					var De = dEffective;
 					datum.IDe = shannon(De, We);
+					datum.throughput = 1000 * (datum.IDe/datum.time);
 					newData.push(datum);
 				}
 			}
@@ -587,6 +562,36 @@ var fittsTest = {
 			
 			regression.transition()
 				.call(makeLine);
+				
+			
+			var histThroughput = d3.layout.histogram()
+				.bins(20)
+				.range([0.5,5.5])
+				.value(function(d){return 100;})
+				
+			var throughputHistogramData = histThroughput(newData)
+				
+			var throughputRect = throughputGroup.selectAll('rect.cat' + key)
+				.data(throughputHistogramData)
+				
+			var makeRect = function(d) {
+				d.attr('x', function(d) {return histX(d.x)})
+				.attr('y', function(d) {return histY(d.y)})
+				.attr('width', 5)
+				.attr('height', function(d) {return histY(d.y)})
+				;
+			}
+			throughputRect.enter()
+				.append('rect')
+				.attr('class', 'cat' + key)
+				.attr('rx', 2)
+				.attr('ry', 2)
+				.style('fill', colour)
+				.call(makeRect)
+				
+			throughputRect.transition()
+				.duration(500)
+				.call(makeRect)
 		}		
 	}
 };
@@ -877,12 +882,12 @@ scatterEffectiveGroup.append("g")
 
 
 var throughputSVG = d3.select('#throughput').append('svg')
-	.attr('width', scatterEffectiveDimension.width)
-	.attr('height', scatterEffectiveDimension.height)
-	.call(bgRect, scatterEffectiveDimension);
+	.attr('width', histDimension.width)
+	.attr('height', histDimension.height)
+	.call(bgRect, histDimension);
 
 var throughputGroup = throughputSVG.append('g')
-	.attr('transform', 'translate('+ (scatterEffectiveDimension.left) + ',' + scatterEffectiveDimension.top + ' )');
+	.attr('transform', 'translate('+ (histDimension.left) + ',' + histDimension.top + ' )');
 	
 
 var positionEffectiveSVG = d3.select('#positionEffective').append('svg')
