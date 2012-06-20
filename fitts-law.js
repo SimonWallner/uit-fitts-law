@@ -874,24 +874,22 @@ var plotPositionSVG = d3.select('#plot-positions').append('svg')
 	.attr('height', plotPositionDimension.height)
 	.call(bgRect, plotPositionDimension)
 
-plotPositionSVG.append('line')
-	.attr('x1', 0)
-	.attr('x2', plotPositionDimension.width)
-	.attr('y1', plotPositionDimension.cy)
-	.attr('y2', plotPositionDimension.cy)
-	.style('stroke', 'black')
-	.style('shape-rendering','crispEdges');
-	
-plotPositionSVG.append('line')
-	.attr('x1', plotPositionDimension.left)
-	.attr('x2', plotPositionDimension.left)
-	.attr('y1', 0)
-	.attr('y2', plotPositionDimension.height)
-	.style('stroke', 'black')
-	.style('shape-rendering','crispEdges');	
-
 var plotPositionGroup = plotPositionSVG.append('g')
 	.attr('transform', 'translate('+ plotPositionDimension.left + ', ' + plotPositionDimension.top + ')');
+
+var positionXAxis = d3.svg.axis()
+	.scale(scaleX)
+	.ticks(7)
+var positionYAxis = d3.svg.axis()
+	.scale(scaleY)
+	.ticks(6)
+	
+plotPositionGroup.append("g")
+    .attr("class", "axis")
+    .call(positionXAxis.tickSize(plotPositionDimension.innerHeight).orient("bottom"));
+plotPositionGroup.append("g")
+    .attr("class", "axis")
+    .call(positionYAxis.tickSize(-plotPositionDimension.innerWidth).orient("left"));
 
 
 	
@@ -935,6 +933,24 @@ var plotVelocitiesSVG = d3.select('#plot-velocities').append('svg')
 
 var plotVelocitiesGroup = plotVelocitiesSVG.append('g')
 	.attr('transform', 'translate('+ plotVelocitiesDimension.left + ', ' + plotVelocitiesDimension.top + ')');
+
+var speedXAxis = d3.svg.axis()
+	.scale(scaleT)
+	.ticks(7)
+var speedYAxis = d3.svg.axis()
+	.scale(scaleV)
+	.ticks(6)
+
+plotVelocitiesGroup.append("g")
+    .attr("class", "axis")
+    .call(speedXAxis.tickSize(plotVelocitiesDimension.innerHeight).orient("bottom"));
+plotVelocitiesGroup.append("g")
+    .attr("class", "axis")
+    .call(speedYAxis.tickSize(-plotVelocitiesDimension.innerWidth).orient("left"));
+
+
+
+
 
 
 

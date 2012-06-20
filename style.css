@@ -130,7 +130,7 @@ line {
 
 .axis path, .axis line {
   fill: none;
-  stroke: #000;
+  stroke: #ccc;
   shape-rendering: crispEdges;
 }
 path {
@@ -139,11 +139,6 @@ path {
   shape-rendering: crispEdges;  
 }
 
-.grid path, .grid line {
-	fill: none;
-  stroke: #ddd;
-  shape-rendering: crispEdges;
-}
 
 circle.iso {
 	fill: #ddd;
