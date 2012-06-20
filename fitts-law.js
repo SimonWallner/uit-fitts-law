@@ -30,7 +30,7 @@ var plotVelocitiesDimension = plotPositionDimension;
 var plotHitsDimension = plotPositionDimension;
 var plotScatterDimension = makeDimension(220, 200, 30, 30, 30, 50);
 var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
-var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 30);
+var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 50);
 var speedEffectiveDimension = positionEffectiveDimension;
 var histDimension = makeDimension(540, 300, 30, 30, 30, 50);
 
@@ -81,8 +81,21 @@ var effScatterY = d3.scale.linear()
 	.domain([MAX_TIME, 0])
 	.range([0, scatterEffectiveDimension.innerHeight]);
 
+var effPositionX = d3.scale.linear()
+	.domain([-60, 400])
+	.range([0, positionEffectiveDimension.innerWidth]);
 
+var effPositionY = d3.scale.linear()
+	.domain([-50, 50])
+	.range([positionEffectiveDimension.innerHeight, 0]);
 	
+var effSpeedX = d3.scale.linear()
+	.domain([0, MAX_TIME])
+	.range([0, speedEffectiveDimension.innerWidth])
+
+var effSpeedY = d3.scale.linear()
+	.domain([0, 50])
+	.range([speedEffectiveDimension.innerHeight, 0]);
 
 
 
@@ -274,7 +287,7 @@ var fittsTest = {
 			var id = shannon(dist, data.target.w);
 
 			this.data[this.currentDataSet].data.push({time: dt, distance: data.target.distance, width: data.target.w, hit: data.hit,
-				start: data.start, target: data.target});
+				start: data.start, target: data.target, path: data.path});
 
 			scatterGroup.append('circle')
 				.attr('class', 'cat' + this.currentDataSet)
@@ -541,7 +554,7 @@ var fittsTest = {
 					.call(insert);
 					
 					
-			// regression
+			// ==================== regression ========================
 			var b = cov(newData,
 				function(d) { return d.time; },
 				function(d) { return d.IDe});
@@ -571,7 +584,7 @@ var fittsTest = {
 				.call(makeLine);
 				
 
-			
+			// ============== histogram ====================
 			var histThroughput = d3.layout.histogram()
 				.bins(20)
 				.range([0,10])
@@ -632,6 +645,61 @@ var fittsTest = {
 			throughputRect.transition()
 				.duration(500)
 				.call(makeRect)
+				
+			// ==================== eff position and speed ===================
+			// more or less copy-pasted from above
+			for (var i = 0; i < newData.length; i++)
+			{
+				var last = { x: 0, y: 0, t: newData[i].start.t, v: 0};
+				var A = newData[i].start;
+				var B = newData[i].target
+				var dAB = distance(A, B);
+				var offset = newData[i].distance - dAB;
+				offset = 0;
+				
+				// positionTargetsGroup.append('circle')
+				// 	.attr('cx', effPositionX(newData[i].distance))
+				// 	.attr('cy', effPositionY(0))
+				// 	.attr('r', effPositionX(B.w / 2))
+				// 	.style('fill', '#ddd')
+				// 	.style('opacity', 0.5)
+								
+				for (var j = 0; j < newData[i].path.length; j++)
+				{
+
+					var p = newData[i].path[j];
+			
+					var q = project(A, B, p);
+					var x = distance(q, A) * sign(q.t);
+					var y = distance(q, p) * isLeft(A, B, p);
+
+					var dt = p.t - last.t;
+					var dist = distance(last, {x: x, y: y});
+					var speed = dist;// / dt;
+		
+					positionEffectiveGroup.append('svg:line')
+						.attr('class', 'path')
+						.attr('x1', effPositionX(last.x + offset))
+						.attr('x2', effPositionX(x + offset))
+						.attr('y1', effPositionY(last.y))
+						.attr('y2', effPositionY(y))
+						.style('stroke', colour)
+			
+					speedEffectiveGroup.append('svg:line')
+						.attr('class', 'path')
+						.attr('x1', effSpeedX(last.t - A.t))
+						.attr('x2', effSpeedX(p.t - A.t))
+						.attr('y1', effSpeedY(last.v))
+						.attr('y2', effSpeedY(speed))
+						.style('stroke', colour)
+					
+					var last = {}
+					last.x = x;
+					last.y = y;
+					last.t = p.t;
+					last.v = speed;
+				}
+			}
 		}		
 	}
 };
@@ -937,9 +1005,33 @@ var positionEffectiveSVG = d3.select('#positionEffective').append('svg')
 	.attr('height', positionEffectiveDimension.height)
 	.call(bgRect, positionEffectiveDimension);
 
+var positionTargetsGroup = positionEffectiveSVG.append('g')
+		.attr('transform', 'translate('+ (positionEffectiveDimension.left) + ',' + positionEffectiveDimension.top + ' )');
+
 var positionEffectiveGroup = positionEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (positionEffectiveDimension.left) + ',' + positionEffectiveDimension.top + ' )');
 
+var positionEffXAxis = d3.svg.axis()
+	.scale(effPositionX)
+	.ticks(10)
+	.tickSize(-positionEffectiveDimension.innerHeight)
+
+var positionEffYAxis = d3.svg.axis()
+	.scale(effPositionY)
+	.ticks(5)
+	.tickSize(-positionEffectiveDimension.innerWidth)
+
+positionEffectiveGroup.append('g')
+	.attr('class', 'axis')
+	.attr('transform', 'translate(0, ' + positionEffectiveDimension.innerHeight + ')')
+	.call(positionEffXAxis.orient('bottom'));
+	
+positionEffectiveGroup.append('g')
+	.attr('class', 'axis')
+		.call(positionEffYAxis.orient('left'));	
+	
+	
+	
 
 var speedEffectiveSVG = d3.select('#speedEffective').append('svg')
 	.attr('width', speedEffectiveDimension.width)
@@ -949,7 +1041,24 @@ var speedEffectiveSVG = d3.select('#speedEffective').append('svg')
 var speedEffectiveGroup = speedEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (speedEffectiveDimension.left) + ',' + speedEffectiveDimension.top + ' )');
 
+var speedEffXAxis = d3.svg.axis()
+	.scale(effSpeedX)
+	.ticks(10)
+	.tickSize(-speedEffectiveDimension.innerHeight)
 
+var speedEffYAxis = d3.svg.axis()
+	.scale(effSpeedY)
+	.ticks(5)
+	.tickSize(-speedEffectiveDimension.innerWidth)
+
+speedEffectiveGroup.append('g')
+	.attr('class', 'axis')
+	.attr('transform', 'translate(0, ' + speedEffectiveDimension.innerHeight + ')')
+	.call(speedEffXAxis.orient('bottom'));
+
+speedEffectiveGroup.append('g')
+	.attr('class', 'axis')
+	.call(speedEffYAxis.orient('left'));
 
 
 
