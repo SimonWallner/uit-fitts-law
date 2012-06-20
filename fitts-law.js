@@ -89,6 +89,7 @@ var fittsTest = {
 	isoPositions: [],
 	currentPosition: 0,
 	currentCount: 0,
+	miss: 0,
 	isoLimits: {minD: 120, maxD: 300, minW:10 , maxW: 100},
 	isoParams: {num: 9, distance: 200, width: 50, randomise: true},
 	
@@ -197,6 +198,7 @@ var fittsTest = {
 				this.randomiseParams();
 				this.currentCount = 0;
 				this.currentPosition = 0;
+				this.miss = 0;
 				this.updateISOCircles;
 				this.generateTarget();
 				this.active = false;
@@ -210,6 +212,13 @@ var fittsTest = {
 			this.last = {x: x, y: y, t: (new Date).getTime()};
 			this.start = this.last;
 			this.currentPath.push(this.last);
+		}
+		else {
+			this.miss++;
+			this.missDataPoint({start: this.start,
+				target: this.target,
+				path: this.currentPath,
+				hit: {x: x, y: y, t: (new Date).getTime()}});
 		}
 	},
 	
@@ -251,6 +260,26 @@ var fittsTest = {
 		}
 	},
 	
+	missDataPoint: function(data) {
+		if (this.active == false)
+			return;
+
+		var dt = data.hit.t - data.start.t;
+		var dist = distance(data.target, data.start);
+		var id = shannon(dist, data.target.w);		
+	
+		throughputGroup.append('circle')
+		.attr('class', 'cat' + this.currentDataSet)
+		.style('fill', 'red')
+		.attr('cx', scatterX(id))
+		.attr('cy', scatterY(dt))
+		.attr('r', 0)
+			.transition()
+				.duration(200)
+				.ease('bounce')
+				.attr('r', 3);
+	},
+	
 	addDataPoint: function(data) {
 		// add point to data array for plotting into ID/time scatter plot
 		if (this.active == false)
@@ -275,8 +304,18 @@ var fittsTest = {
 					.transition()
 						.duration(200)
 						.ease('bounce')
-						.attr('r', 3);				
-
+						.attr('r', 3);		
+						
+			throughputGroup.append('circle')
+				.attr('class', 'cat' + this.currentDataSet)
+				.style('fill', this.data[this.currentDataSet].colour)
+				.attr('cx', scatterX(id))
+				.attr('cy', scatterY(dt))
+				.attr('r', 0)
+					.transition()
+						.duration(200)
+						.ease('bounce')
+						.attr('r', 3);
 		
 			var A = data.start;
 			var B = data.target;
