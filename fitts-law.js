@@ -30,7 +30,7 @@ var plotVelocitiesDimension = plotPositionDimension;
 var plotHitsDimension = plotPositionDimension;
 var plotScatterDimension = makeDimension(220, 200, 30, 30, 30, 50);
 var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
-var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 30);
+var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 50);
 var speedEffectiveDimension = positionEffectiveDimension;
 var histDimension = makeDimension(540, 300, 30, 30, 30, 30);
 
@@ -82,7 +82,7 @@ var effScatterY = d3.scale.linear()
 	.range([0, scatterEffectiveDimension.innerHeight]);
 
 var effPositionX = d3.scale.linear()
-	.domain([-20, 300])
+	.domain([-60, 400])
 	.range([0, positionEffectiveDimension.innerWidth]);
 
 var effPositionY = d3.scale.linear()
@@ -632,6 +632,16 @@ var fittsTest = {
 				var last = { x: 0, y: 0, t: newData[i].start.t, v: 0};
 				var A = newData[i].start;
 				var B = newData[i].target
+				var dAB = distance(A, B);
+				var offset = newData[i].distance - dAB;
+				offset = 0;
+				
+				// positionTargetsGroup.append('circle')
+				// 	.attr('cx', effPositionX(newData[i].distance))
+				// 	.attr('cy', effPositionY(0))
+				// 	.attr('r', effPositionX(B.w / 2))
+				// 	.style('fill', '#ddd')
+				// 	.style('opacity', 0.5)
 								
 				for (var j = 0; j < newData[i].path.length; j++)
 				{
@@ -648,11 +658,11 @@ var fittsTest = {
 		
 					positionEffectiveGroup.append('svg:line')
 						.attr('class', 'path')
-						.attr('x1', effPositionX(last.x))
-						.attr('x2', effPositionX(x))
+						.attr('x1', effPositionX(last.x + offset))
+						.attr('x2', effPositionX(x + offset))
 						.attr('y1', effPositionY(last.y))
 						.attr('y2', effPositionY(y))
-						.style('stroke', v(speed/ dt))
+						.style('stroke', colour)
 			
 					speedEffectiveGroup.append('svg:line')
 						.attr('class', 'path')
@@ -660,7 +670,7 @@ var fittsTest = {
 						.attr('x2', effSpeedX(p.t - A.t))
 						.attr('y1', effSpeedY(last.v))
 						.attr('y2', effSpeedY(speed))
-						.style('stroke', v(speed / dt))
+						.style('stroke', colour)
 					
 					var last = {}
 					last.x = x;
@@ -972,9 +982,33 @@ var positionEffectiveSVG = d3.select('#positionEffective').append('svg')
 	.attr('height', positionEffectiveDimension.height)
 	.call(bgRect, positionEffectiveDimension);
 
+var positionTargetsGroup = positionEffectiveSVG.append('g')
+		.attr('transform', 'translate('+ (positionEffectiveDimension.left) + ',' + positionEffectiveDimension.top + ' )');
+
 var positionEffectiveGroup = positionEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (positionEffectiveDimension.left) + ',' + positionEffectiveDimension.top + ' )');
 
+var positionEffXAxis = d3.svg.axis()
+	.scale(effPositionX)
+	.ticks(10)
+	.tickSize(-positionEffectiveDimension.innerHeight)
+
+var positionEffYAxis = d3.svg.axis()
+	.scale(effPositionY)
+	.ticks(5)
+	.tickSize(-positionEffectiveDimension.innerWidth)
+
+positionEffectiveGroup.append('g')
+	.attr('class', 'axis')
+	.attr('transform', 'translate(0, ' + positionEffectiveDimension.innerHeight + ')')
+	.call(positionEffXAxis.orient('bottom'));
+	
+positionEffectiveGroup.append('g')
+	.attr('class', 'axis')
+		.call(positionEffYAxis.orient('left'));	
+	
+	
+	
 
 var speedEffectiveSVG = d3.select('#speedEffective').append('svg')
 	.attr('width', speedEffectiveDimension.width)
@@ -984,7 +1018,24 @@ var speedEffectiveSVG = d3.select('#speedEffective').append('svg')
 var speedEffectiveGroup = speedEffectiveSVG.append('g')
 	.attr('transform', 'translate('+ (speedEffectiveDimension.left) + ',' + speedEffectiveDimension.top + ' )');
 
+var speedEffXAxis = d3.svg.axis()
+	.scale(effSpeedX)
+	.ticks(10)
+	.tickSize(-speedEffectiveDimension.innerHeight)
 
+var speedEffYAxis = d3.svg.axis()
+	.scale(effSpeedY)
+	.ticks(5)
+	.tickSize(-speedEffectiveDimension.innerWidth)
+
+speedEffectiveGroup.append('g')
+	.attr('class', 'axis')
+	.attr('transform', 'translate(0, ' + speedEffectiveDimension.innerHeight + ')')
+	.call(speedEffXAxis.orient('bottom'));
+
+speedEffectiveGroup.append('g')
+	.attr('class', 'axis')
+	.call(speedEffYAxis.orient('left'));
 
 
 
