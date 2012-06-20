@@ -16,6 +16,15 @@ h1 {
 	margin-top: 0.333333em;
 }
 
+h2 {
+	display: block;
+	font-size: 1.5em;
+	font-family: 'Open Sans';
+	font-weight: 700;
+	margin-bottom: 0.3333333em;
+	margin-top: 0.5em;
+}
+
 p {
 	margin-bottom: 1em;
 }
@@ -26,7 +35,8 @@ h1 strong {
 
 strong {
 	font-family: 'Open Sans';
-	font-weight: 700;
+	font-weight: 600;
+	font-size: 0.91em;
 }
 .sans {
 	font-family: 'Open Sans';
@@ -88,6 +98,14 @@ div.msg {
 	font-family: 'Open Sans';
 	font-weight: 700;
 }
+
+div.math {
+	margin-top: -15px;
+	margin-bottom: 10px;
+	margin-left: 20px;
+	font-size: 1.2em;
+}
+
 
 
 

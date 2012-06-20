@@ -8,7 +8,7 @@
 	    <script type="text/javascript" src="d3/lib/jquery-ui/jquery-ui.min.js"></script>
 
 		<link href='http://fonts.googleapis.com/css?family=Ovo' rel='stylesheet' type='text/css'>
-		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>				
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>				
 	
 		<link type="text/css" rel="stylesheet" href="reset.css"/>
 		<link type="text/css" rel="stylesheet" href="960_12_col.css"/>
@@ -23,7 +23,37 @@
 			<h1 class="prefix_1 grid_9">An Interactive Visualisation of <strong>Fitts' Law</strong> with Javascript and <strong>D3</strong></h1>
 			<div class="prefix_1 grid_7">
 				<p>
-					Helvetica nesciunt trust fund et aliqua leggings. Keffiyeh cupidatat chambray veniam sustainable qui anim, velit VHS +1 portland aliquip salvia four loko. Single-origin coffee esse dolor, banksy helvetica non sartorial wes anderson messenger bag thundercats sed whatever elit et nulla. Ethnic quis polaroid before they sold out fugiat sartorial. Eiusmod letterpress pariatur, odio freegan aute marfa gluten-free. Bushwick sunt cred placeat. Umami delectus leggings, dolor art party stumptown brunch lo-fi skateboard duis fingerstache sustainable retro truffaut.
+					Fitts's Law is one of the corner stones of user interface research. Published in 1954, Fitts described the relation between the target distance, width and time needed of a target acquisation task, which later became known as <strong>Fitts' law</strong> [Fitts 1954].
+				</p>
+				<p>
+					This interactive illustration of the Fitts' test should serve as an introduction to Fitts' law as well as visualise details not directly covered by it, to give further insights into motion in 2D target acquisition tasks.
+				</p>
+				<h2>Fitts' Law</h2>
+				<p>
+					For a given target acquisition taks, e.g. move the mouse to a certain point in the UI of an application and select it, Fitts' law desribes how the distance from start point to the target and the width of the target influence the index of difficulty (ID) of the task.
+				</p>
+				<p>
+					The law (in the Shannon formulation [MacKenzie and Buxton 1992]) states that
+				<div class="math">
+					<math xmlns="http://www.w3.org/1998/Math/MathML"><mstyle><mrow><mtable columnspacing="0.167em" columnalign="right center left" displaystyle="true"><mrow><mi>I</mi><mi>D</mi><mo>=</mo><mi>l</mi><mi>o</mi><mrow><msub><mi>g</mi><mrow><mn>2</mn></mrow></msub></mrow><mrow><mo>(</mo><mfrac><mrow><mi>A</mi></mrow><mrow><mi>W</mi></mrow></mfrac><mo>+</mo><mn>1</mn><mo>)</mo></mrow></mrow></mtable></mrow></mstyle></math>
+				</div>
+					where <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi></math> is the tasks amplitude or distance, <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>W</mi></math> is the target's width, and the resulting <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>ID</mi></math> is the aforementioned Indes of Difficulty.
+				</p>
+				<p>
+					From this formula we can see that the task gets harder, the farther away the target is and the smaller it is. This fitts well with the common perception of such tasks and, as it turns out, the time it takes to perform such a task is highly correlated witht the ID.
+				</p>
+				
+				<h2>The Test</h2>
+				<p>
+					Below you can find an interactive Fitts' test. The test is laid out according to the recommendations found in [Soukoreff and Mackenzie 2004]. It follows the ISO standard [ISO 9241-9] which unfortunalty was unavailable to us at the time of writing.
+				</p>
+				<p>
+					The test setup allows for multiple data sets to be created (.e.g. to compare different input devices) and the test parameters <strong>distance</strong> and <strong>width</strong> can be adjusted. If parameters are set randomly, they will update after each test round, to allow the continuous insertion of test data for different conditions.
+				</p>
+				
+				<h2>A word of Warning</h2>
+				<p>
+				This test setup is merely for educative and illustrative purposes. This is <strong>not</strong> a controlled experiment, and no defintive truths should be derived from it. It can, however, help in exploring different settings and be a usefull tool for constructing real Fitts' experiments.
 				</p>
 
 			</div>
@@ -33,12 +63,12 @@
 			<div class="grid_8">
 				<div id="test-area" class="sans"></div>
 				<p class="caption">
-					fig. 1: Test Area
+					fig. 1a: Test Area
 				</p>
 			</div>
 			<div class="grid_4 border sans" style="height: 378px; padding: 10px; width: 278px">
 				<p>
-					Instructions and select data set stuff
+					Try to click the red circle as fast as possible but at the same time try to avoid errors. 
 				</p>
 				
 				<hr />
@@ -68,28 +98,28 @@
 			<div class="grid_3">
 				 <div id="plot-positions" class="sans"></div>
 				<p class="caption">
-					fig. 2a: Movement path
+					fig. 1b: Movement path
 				</p>
 			</div>
 			
 			<div class="grid_3">
 				<div id="plot-velocities" class="sans"></div>
 				<p class="caption">
-					fig. 2b: Movement speed
+					fig. 1c: Movement speed
 				</p>				
 			</div>
 
 			<div class="grid_3 2ndRow">
 				<div id="plot-hits" class="sans"></div>
 				<p class="caption">
-					fig. 2d: click position
+					fig. 1d: click position
 				</p>
 			</div>
 						
 			<div class="grid_3">
 				<div id="plot-scatter" class="sans"></div>
 				<p class="caption">
-					fig. 2c: Raw data
+					fig. 1f: Raw data
 				</p>
 			</div>
 
@@ -143,12 +173,22 @@
 				</div>
 					
 				<div class="prefix_1 grid_7">
+					
+				<h2>References</h2>
 				<p>
-					<strong>Group 2: Simon Wallner, Otilia Danet, Trine Eilersen, Jesper Tved</strong>
+					Fitts, P. M. (1954). The information capacity of the human motor system in controlling the amplitude of movement. Journal of Experimental Psychology, 47(6), 381-391. doi:10.1037/h0055392
 				</p>
-				
+				<p> MacKenzie, I. S., & Buxton, W. (1992). Extending Fitts' law to two-dimensional tasks. Proceedings of the SIGCHI conference on Human factors in computing systems CHI 92, p, 219-226. ACM Press. doi:10.1145/142750.142794
+				</p>
 				<p>
-					This project is licensed under the permissive MIT license, and we encourage everyone to correct conceptual errors, contribute it, or share it umong their peers. --> fork on github, --> contact info
+					ISO. (2000). Ergonomic requirements for office work with visual display terminals (VDTs) - Requirements for non-keyboard input devices. ISO 92419. International Organization of Standardization.
+				</p>
+
+				
+				<h2>License</h2>
+				<p>
+					This project is licensed under the permissive <strong>MIT license</strong>, The full source is availble on <a href="https://github.com/SimonWallner/uit-fitts-law">github</a>
+				</p>
 			</div>
 			
 			<script type="text/javascript" src="fitts-law.js"></script>

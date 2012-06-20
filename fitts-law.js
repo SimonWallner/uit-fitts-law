@@ -445,10 +445,15 @@ var fittsTest = {
 				.duration(2000)
 					.style('opacity', 0)
 					.remove();
+					
+		/* we haven't moven inside the test area, so we can as well disable
+		 * the test for now
+		 */
+		that.active = false;
 
 		// for each data set
 		// compute We and IDe and Throughput for each category
-		
+
 		// process data
 
 		for (var key in that.data) { // for each data set
