@@ -34,7 +34,7 @@ var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 50);
 var speedEffectiveDimension = positionEffectiveDimension;
 var histDimension = makeDimension(540, 300, 30, 30, 30, 50);
 
-var LIVE_STAY = 5000;
+var LIVE_STAY = 1000;
 var MAX_TIME = 2000;
 var UPDATE_DELAY = MAX_TIME;
 
@@ -74,7 +74,7 @@ var scaleY = d3.scale.linear()
 	.range([plotPositionDimension.innerHeight, 0]);
 
 var effScatterX = d3.scale.linear()
-	.domain([0.5, 5.5])
+	.domain([0.5, 6.5])
 	.range([0, scatterEffectiveDimension.innerWidth]);
 
 var effScatterY = d3.scale.linear()
@@ -185,6 +185,29 @@ var fittsTest = {
 },
 	
 	generateISOPositions: function(num, d, w) {
+		
+		// remove all data from live view
+		plotHitsGroup.selectAll('circle.hit')
+			.transition()
+				.duration(LIVE_STAY)
+					.ease('linear')
+					.attr('r', 2)
+					.style('opacity', 0)
+					.remove();
+		
+		plotPositionGroup.selectAll('line.live')
+			.transition()
+				.duration(LIVE_STAY)
+				.style('stroke-opacity', 0)
+				.remove();
+
+		plotVelocitiesGroup.selectAll('line.live')
+			.transition()
+				.duration(LIVE_STAY)
+				.style('stroke-opacity', 0)
+				.remove();
+		
+		
 		this.isoPositions = [];
 		
 		for (var i = 0; i < num; i++) {
@@ -258,15 +281,15 @@ var fittsTest = {
 			var dist = distance(this.last, {x: x, y: y})
 			var speed = dist / dt;
 			
-			testAreaSVG.append('svg:line')
-				.attr('class', 'path')
+			testAreaSVG.append('line')
+				// .attr('class', '')
 				.attr('x1', this.last.x)
 				.attr('x2', newPoint.x)
 				.attr('y1', this.last.y)
 				.attr('y2', newPoint.y)
 				.style('stroke', v(speed))
 				.transition()
-					.duration(LIVE_STAY)
+					.duration(5000)
 					.style('stroke-opacity', 0)
 					.remove();
 				
@@ -311,17 +334,16 @@ var fittsTest = {
 		
 		
 			plotHitsGroup.append('circle')
+				.attr('class', 'hit')
 				.attr('cx', rHit(hit.x, data.target.w / 2))
 				.attr('cy', rHit(hit.y, data.target.w / 2))
 				.attr('r', 6)
 				.style('fill', 'red')
 				.style('opacity', 1)
 				.transition()
-					.duration(LIVE_STAY)
+					.duration(500)
 						.ease('linear')
-						.attr('r', 2)
-						.style('opacity', 0)
-						.remove();
+						.attr('r', 3);
 		
 			var last = { x: 0, y: 0, t: data.start.t, v: 0};
 			for (var i = 0; i < path.length; i++) {
@@ -336,7 +358,7 @@ var fittsTest = {
 				var speed = dist;// / dt;
 		
 				plotPositionGroup.append('svg:line')
-					.attr('class', 'path')
+					.attr('class', 'live')
 					.attr('x1', scaleX(last.x))
 					.attr('x2', scaleX(x))
 					.attr('y1', scaleY(last.y))
@@ -344,11 +366,10 @@ var fittsTest = {
 					.style('stroke', v(speed/ dt))
 					.transition()
 						.duration(LIVE_STAY)
-						.style('stroke-opacity', 0)
-						.remove();
+						.style('stroke-opacity', 0.5);
 			
 				plotVelocitiesGroup.append('svg:line')
-					.attr('class', 'path')
+					.attr('class', 'live')
 					.attr('x1', scaleT(last.t - data.start.t))
 					.attr('x2', scaleT(p.t - data.start.t))
 					.attr('y1', scaleV(last.v))
@@ -357,8 +378,7 @@ var fittsTest = {
 					.style('stroke', v(speed / dt))
 					.transition()
 						.duration(LIVE_STAY)
-						.style('stroke-opacity', 0)
-						.remove();
+						.style('stroke-opacity', 0.5);
 					
 				var last = {}
 				last.x = x;
@@ -571,9 +591,16 @@ var fittsTest = {
 					
 					
 			// ==================== regression ========================
-			var b = cov(newData,
+			var covTIDe = cov(newData,
 				function(d) { return d.time; },
 				function(d) { return d.IDe});
+			
+			var varIDe = variance(newData, function(d) { return d.IDe; })
+			
+			if (varIDe > 0)
+				var b = covTIDe / varIDe;
+			else
+				var b = 0;
 			
 			var mT = mean(newData, function(d) { return d.time; });
 			var mIDe = mean(newData, function(d) { return d.IDe; });
@@ -588,7 +615,7 @@ var fittsTest = {
 			}
 			
 			var regression = scatterEffectiveGroup.selectAll('line.cat' + key)
-				.data([{y1:a + b * 0.5, y2: a + b * 5.5}]);
+				.data([{y1:a + b * 0.5, y2: a + b * 6.5}]);
 			
 			regression.enter().append('line')
 				.attr('class', 'cat' + key)
@@ -694,7 +721,7 @@ var fittsTest = {
 					var speed = dist;// / dt;
 		
 					positionEffectiveGroup.append('line')
-						.attr('class', 'path cat' + key)
+						.attr('class', 'cat' + key)
 						.attr('x1', effPositionX(last.x + offset))
 						.attr('x2', effPositionX(x + offset))
 						.attr('y1', effPositionY(last.y))
@@ -702,7 +729,7 @@ var fittsTest = {
 						.style('stroke', colour)
 			
 					speedEffectiveGroup.append('line')
-						.attr('class', 'path cat' + key)
+						.attr('class', 'cat' + key)
 						.attr('x1', effSpeedX(last.t - A.t))
 						.attr('x2', effSpeedX(p.t - A.t))
 						.attr('y1', effSpeedY(last.v))
