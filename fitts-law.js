@@ -80,7 +80,22 @@ var effScatterX = d3.scale.linear()
 var effScatterY = d3.scale.linear()
 	.domain([MAX_TIME, 0])
 	.range([0, scatterEffectiveDimension.innerHeight]);
+
+var effPositionX = d3.scale.linear()
+	.domain([-20, 300])
+	.range([0, positionEffectiveDimension.innerWidth]);
+
+var effPositionY = d3.scale.linear()
+	.domain([-50, 50])
+	.range([positionEffectiveDimension.innerHeight, 0]);
 	
+var effSpeedX = d3.scale.linear()
+	.domain([0, MAX_TIME])
+	.range([0, speedEffectiveDimension.innerWidth])
+
+var effSpeedY = d3.scale.linear()
+	.domain([0, 50])
+	.range([speedEffectiveDimension.innerHeight, 0]);
 
 
 
@@ -272,7 +287,7 @@ var fittsTest = {
 			var id = shannon(dist, data.target.w);
 
 			this.data[this.currentDataSet].data.push({time: dt, distance: data.target.distance, width: data.target.w, hit: data.hit,
-				start: data.start, target: data.target});
+				start: data.start, target: data.target, path: data.path});
 
 			scatterGroup.append('circle')
 				.attr('class', 'cat' + this.currentDataSet)
@@ -539,7 +554,7 @@ var fittsTest = {
 					.call(insert);
 					
 					
-			// regression
+			// ==================== regression ========================
 			var b = cov(newData,
 				function(d) { return d.time; },
 				function(d) { return d.IDe});
@@ -569,7 +584,7 @@ var fittsTest = {
 				.call(makeLine);
 				
 
-			
+			// ============== histogram ====================
 			var histThroughput = d3.layout.histogram()
 				.bins(20)
 				.range([0.5,5.5])
@@ -609,6 +624,51 @@ var fittsTest = {
 			throughputRect.transition()
 				.duration(500)
 				.call(makeRect)
+				
+			// ==================== eff position and speed ===================
+			// more or less copy-pasted from above
+			for (var i = 0; i < newData.length; i++)
+			{
+				var last = { x: 0, y: 0, t: newData[i].start.t, v: 0};
+				var A = newData[i].start;
+				var B = newData[i].target
+								
+				for (var j = 0; j < newData[i].path.length; j++)
+				{
+
+					var p = newData[i].path[j];
+			
+					var q = project(A, B, p);
+					var x = distance(q, A) * sign(q.t);
+					var y = distance(q, p) * isLeft(A, B, p);
+
+					var dt = p.t - last.t;
+					var dist = distance(last, {x: x, y: y});
+					var speed = dist;// / dt;
+		
+					positionEffectiveGroup.append('svg:line')
+						.attr('class', 'path')
+						.attr('x1', effPositionX(last.x))
+						.attr('x2', effPositionX(x))
+						.attr('y1', effPositionY(last.y))
+						.attr('y2', effPositionY(y))
+						.style('stroke', v(speed/ dt))
+			
+					speedEffectiveGroup.append('svg:line')
+						.attr('class', 'path')
+						.attr('x1', effSpeedX(last.t - A.t))
+						.attr('x2', effSpeedX(p.t - A.t))
+						.attr('y1', effSpeedY(last.v))
+						.attr('y2', effSpeedY(speed))
+						.style('stroke', v(speed / dt))
+					
+					var last = {}
+					last.x = x;
+					last.y = y;
+					last.t = p.t;
+					last.v = speed;
+				}
+			}
 		}		
 	}
 };
