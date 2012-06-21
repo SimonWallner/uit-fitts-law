@@ -30,22 +30,23 @@ var plotVelocitiesDimension = plotPositionDimension;
 var plotHitsDimension = plotPositionDimension;
 var plotScatterDimension = makeDimension(220, 200, 30, 30, 30, 50);
 var scatterEffectiveDimension = makeDimension(540, 300, 30, 30, 30, 50);
-var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 50);
+var positionEffectiveDimension = makeDimension(540, 200, 30, 30, 30, 40);
 var speedEffectiveDimension = positionEffectiveDimension;
 var histDimension = makeDimension(540, 300, 30, 30, 30, 50);
 
 var LIVE_STAY = 1000;
 var MAX_TIME = 2000;
 var UPDATE_DELAY = MAX_TIME;
+var MAX_SPEED = 6; // pixel/ms
 
 function rHit(r, rTarget) {
 	return ((plotHitsDimension.innerWidth / 2) / rTarget) * r;
 };
 
-var maxV = 2; // pixel/ms
+
 
 function v(v) {
-	var colour = 'rgb(' + clampInt(0, 255, (v / maxV) * 255) + ', 0, 0)';
+	var colour = 'rgb(' + clampInt(0, 255, (v / MAX_SPEED) * 255) + ', 0, 0)';
 	return colour;
 };
 
@@ -62,7 +63,7 @@ var scaleT = d3.scale.linear()
 	.range([0, plotVelocitiesDimension.innerWidth]);
 
 var scaleV = d3.scale.linear()
-	.domain([0, 50])
+	.domain([0, MAX_SPEED])
 	.range([plotVelocitiesDimension.innerHeight, 0]);
 
 var scaleX = d3.scale.linear()
@@ -94,7 +95,7 @@ var effSpeedX = d3.scale.linear()
 	.range([0, speedEffectiveDimension.innerWidth])
 
 var effSpeedY = d3.scale.linear()
-	.domain([0, 50])
+	.domain([0, MAX_SPEED])
 	.range([speedEffectiveDimension.innerHeight, 0]);
 
 
@@ -279,7 +280,10 @@ var fittsTest = {
 			
 			var dt = newPoint.t - this.last.t;
 			var dist = distance(this.last, {x: x, y: y})
-			var speed = dist / dt;
+			if (dt > 0)
+				var speed = dist / dt;
+			else
+				var speed = 0;
 			
 			testAreaSVG.append('line')
 				// .attr('class', '')
@@ -355,7 +359,10 @@ var fittsTest = {
 
 				var dt = p.t - last.t;
 				var dist = distance(last, {x: x, y: y});
-				var speed = dist;// / dt;
+				if (dt > 0)
+					var speed = dist / dt;
+				else
+					var speed = 0;
 		
 				plotPositionGroup.append('svg:line')
 					.attr('class', 'live')
@@ -363,7 +370,7 @@ var fittsTest = {
 					.attr('x2', scaleX(x))
 					.attr('y1', scaleY(last.y))
 					.attr('y2', scaleY(y))
-					.style('stroke', v(speed/ dt))
+					.style('stroke', v(speed))
 					.transition()
 						.duration(LIVE_STAY)
 						.style('stroke-opacity', 0.5);
@@ -375,7 +382,7 @@ var fittsTest = {
 					.attr('y1', scaleV(last.v))
 					.attr('y2', scaleV(speed))
 
-					.style('stroke', v(speed / dt))
+					.style('stroke', v(speed))
 					.transition()
 						.duration(LIVE_STAY)
 						.style('stroke-opacity', 0.5);
@@ -699,13 +706,6 @@ var fittsTest = {
 				var dAB = distance(A, B);
 				var offset = newData[i].distance - dAB;
 				offset = 0;
-				
-				// positionTargetsGroup.append('circle')
-				// 	.attr('cx', effPositionX(newData[i].distance))
-				// 	.attr('cy', effPositionY(0))
-				// 	.attr('r', effPositionX(B.w / 2))
-				// 	.style('fill', '#ddd')
-				// 	.style('opacity', 0.5)
 								
 				for (var j = 0; j < newData[i].path.length; j++)
 				{
@@ -718,7 +718,10 @@ var fittsTest = {
 
 					var dt = p.t - last.t;
 					var dist = distance(last, {x: x, y: y});
-					var speed = dist;// / dt;
+					if (dt > 0)
+						var speed = dist / dt;
+					else
+						var speed = 0;
 		
 					positionEffectiveGroup.append('line')
 						.attr('class', 'cat' + key)
@@ -727,6 +730,7 @@ var fittsTest = {
 						.attr('y1', effPositionY(last.y))
 						.attr('y2', effPositionY(y))
 						.style('stroke', colour)
+						.style('opacity', 0.5);
 			
 					speedEffectiveGroup.append('line')
 						.attr('class', 'cat' + key)
@@ -735,6 +739,7 @@ var fittsTest = {
 						.attr('y1', effSpeedY(last.v))
 						.attr('y2', effSpeedY(speed))
 						.style('stroke', colour)
+						.style('opacity', 0.5);
 					
 					var last = {}
 					last.x = x;
@@ -970,13 +975,22 @@ var speedYAxis = d3.svg.axis()
 
 plotVelocitiesGroup.append("g")
     .attr("class", "axis")
-    .call(speedXAxis.tickSize(plotVelocitiesDimension.innerHeight).orient("bottom"));
+    .call(speedXAxis.tickSize(plotVelocitiesDimension.innerHeight).orient("bottom"))
+	// .append('text')
+	// 	.text('time in ms')
+	// 	.attr('x', 80)
+	// 	.attr('y', plotVelocitiesDimension.innerHeight + 25)
+	// 	.style('text-anchor', 'middle');
+		
 plotVelocitiesGroup.append("g")
     .attr("class", "axis")
-    .call(speedYAxis.tickSize(-plotVelocitiesDimension.innerWidth).orient("left"));
-
-
-
+    .call(speedYAxis.tickSize(-plotVelocitiesDimension.innerWidth).orient("left"))
+		// .append('text')
+		// 	.text('pixel/ms')
+		// 	.attr('x', -20)
+		// 	.attr('y', 80)
+		// 	.attr('transform', 'rotate(-90, -20, 80)')
+		// 	.style('text-anchor', 'middle');
 
 
 
@@ -994,25 +1008,29 @@ var xAxis = d3.svg.axis()
 	.scale(scatterX)
 	.ticks(7)
 	.tickSize(6, 3, 0);
-
 var yAxis = d3.svg.axis()
 	.scale(scatterY)
 	.ticks(6)
 	.tickSize(6, 3, 6)
-
-
-	
 	
 // print axes
 scatterGroup.append("g")
     .attr("class", "axis")
-	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
-    .call(xAxis.tickSize(plotScatterDimension.innerHeight).orient("bottom"));
-
+    .call(xAxis.tickSize(plotScatterDimension.innerHeight).orient("bottom"))
+		// .append('text')
+		// 	.text('ID')
+		// 	.attr('x', 80)
+		// 	.attr('y', plotScatterDimension.innerHeight + 25)
+		// 	.style('text-anchor', 'middle');
 scatterGroup.append("g")
     .attr("class", "axis")
-	// .attr("transform", "translate( 0, " + plotScatterDimension.height + ")")
-    .call(yAxis.tickSize(-plotScatterDimension.innerWidth).orient("left"));
+    .call(yAxis.tickSize(-plotScatterDimension.innerWidth).orient("left"))
+		// .append('text')
+		// 	.text('time in ms')
+		// 	.attr('x', -20)
+		// 	.attr('y', 65)
+		// 	.attr('transform', 'rotate(-90, -20, 80)')
+		// 	.style('text-anchor', 'middle');
 
 
 
