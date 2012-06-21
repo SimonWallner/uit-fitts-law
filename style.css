@@ -54,6 +54,15 @@ p.caption {
 	font-size: 0.8em;
 }
 
+p.note {
+	font-family: 'Open Sans';
+	font-weight: 600;
+	background-color: #EDE6B2;
+	border-radius: 15px;
+	font-size: 0.8em;
+	padding: 15px;
+}
+
 .border {
 	border: solid black 1px;
 }

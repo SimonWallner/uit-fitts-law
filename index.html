@@ -28,6 +28,10 @@
 				<p>
 					This interactive illustration of the Fitts' test should serve as an introduction to Fitts' law as well as visualise details not directly covered by it, to give further insights into motion in 2D target acquisition tasks.
 				</p>
+				<p class="note">
+					We recomend a modern browser and fast computer to run the interactive tests. We developed on Safari and Chrome, so support for other modern browsers is likely but not guaranteed.
+				</p>
+				
 				<h2>Fitts' Law</h2>
 				<p>
 					For a given target acquisition taks, e.g. move the mouse to a certain point in the UI of an application and select it, Fitts' law desribes how the distance from start point to the target and the width of the target influence the index of difficulty (ID) of the task.
@@ -63,16 +67,10 @@
 			<div class="grid_8">
 				<div id="test-area" class="sans"></div>
 				<p class="caption">
-					fig. 1a: Test Area
+					fig. 1a: Test Area: Try to click the red circle as fast as possible but at the same time try to avoid errors. 
 				</p>
 			</div>
-			<div class="grid_4 border sans" style="height: 378px; padding: 10px; width: 278px">
-				<p>
-					Try to click the red circle as fast as possible but at the same time try to avoid errors. 
-				</p>
-				
-				<hr />
-				
+			<div class="grid_4 border sans" style="height: 378px; padding: 10px; width: 278px">				
 				<p>
 					<button id="randomiseButton" type="button">Randomise!</button> 
 					<input type="checkbox" id="randomiseCheckbox" checked /> randomise after round
@@ -88,7 +86,7 @@
 				</p>
 				<hr />
 				<p>
-					Data Sets:
+					Data Sets: (click to make active)
 					<div id="dataSets"></div>
 					<button id="addDataSetButton" type="button">Add Data Set</button>
 				</p>

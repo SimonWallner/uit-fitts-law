@@ -613,25 +613,28 @@ var fittsTest = {
 			var mIDe = mean(newData, function(d) { return d.IDe; });
 			var a = mT - b * mIDe;
 			
-			var makeLine = function(d) {
-				return d
-					.attr('x1', 0)
-					.attr('x2', scatterEffectiveDimension.innerWidth)
-					.attr('y1', function(d) { return effScatterY(d.y1); })
-					.attr('y2', function(d) { return effScatterY(d.y2); })
+			if (!isNaN(a))
+			{			
+				var makeLine = function(d) {
+					return d
+						.attr('x1', 0)
+						.attr('x2', scatterEffectiveDimension.innerWidth)
+						.attr('y1', function(d) { return effScatterY(d.y1); })
+						.attr('y2', function(d) { return effScatterY(d.y2); })
+				}
+			
+				var regression = scatterEffectiveGroup.selectAll('line.cat' + key)
+					.data([{y1:a + b * 0.5, y2: a + b * 6.5}]);
+			
+				regression.enter().append('line')
+					.attr('class', 'cat' + key)
+					.style('stroke', colour)
+					.style('stroke-width', 2)
+					.call(makeLine);
+			
+				regression.transition()
+					.call(makeLine);
 			}
-			
-			var regression = scatterEffectiveGroup.selectAll('line.cat' + key)
-				.data([{y1:a + b * 0.5, y2: a + b * 6.5}]);
-			
-			regression.enter().append('line')
-				.attr('class', 'cat' + key)
-				.style('stroke', colour)
-				.style('stroke-width', 2)
-				.call(makeLine);
-			
-			regression.transition()
-				.call(makeLine);
 				
 
 			// ============== histogram ====================
