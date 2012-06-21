@@ -23,7 +23,7 @@
 			<h1 class="prefix_1 grid_9">An Interactive Visualisation of <strong>Fitts' Law</strong> with Javascript and <strong>D3</strong></h1>
 			<div class="prefix_1 grid_7">
 				<p>
-					Fitts's Law is one of the corner stones of user interface research. Published in 1954, Fitts described the relation between the target distance, width and time needed of a target acquisation task, which later became known as <strong>Fitts' law</strong> [Fitts 1954].
+					Fitts's Law is one of the corner stones of user interface research. Published in 1954, Fitts described the relation between the target distance, width and time needed for a target acquisition task, which later became known as <strong>Fitts' law</strong> [Fitts 1954].
 				</p>
 				<p>
 					This interactive illustration of the Fitts' test should serve as an introduction to Fitts' law as well as visualise details not directly covered by it, to give further insights into motion in 2D target acquisition tasks.
@@ -34,7 +34,7 @@
 				
 				<h2>Fitts' Law</h2>
 				<p>
-					For a given target acquisition taks, e.g. move the mouse to a certain point in the UI of an application and select it, Fitts' law desribes how the distance from start point to the target and the width of the target influence the index of difficulty (ID) of the task.
+					For a given target acquisition task, e.g. move the mouse to a certain point in the UI of an application and select it, Fitts' law desribes how the distance from start point to the target and the width of the target influence the index of difficulty (ID) of the task.
 				</p>
 				<p>
 					The law (in the Shannon formulation [MacKenzie and Buxton 1992]) states that
@@ -44,20 +44,22 @@
 					where <strong>A</strong> is the task's amplitude or distance, <strong>W</strong> is the target's width, and the resulting <strong>ID</strong> is the aforementioned <strong>Index of Difficulty</strong>.
 				</p>
 				<p>
-					From this formula we can see that the task gets harder, the farther away the target is and the smaller it is. This fitts well with the common perception of such tasks and, as it turns out, the time it takes to perform such a task is highly correlated witht the ID.
+					From this formula we can see that the task gets harder, the farther away the target is and the smaller it is. This fits well with the common perception of such tasks and, as it turns out, the time it takes to perform such a task is highly correlated with the ID.
 				</p>
 				
 				<h2>The Test</h2>
 				<p>
-					Below you can find an interactive Fitts' test. The test is laid out according to the recommendations found in [Soukoreff and Mackenzie 2004]. It follows the ISO standard [ISO 9241-9] which unfortunalty was unavailable to us at the time of writing.
+					Below you can find an interactive Fitts' test. The test is laid out according to the recommendations found in [Soukoreff and Mackenzie 2004]. It should also follow the ISO standard [ISO 9241-9] which unforteunalty was unavailable to us at the time of writing.
 				</p>
 				<p>
 					The test setup allows for multiple data sets to be created (.e.g. to compare different input devices) and the test parameters <strong>distance</strong> and <strong>width</strong> can be adjusted. If parameters are set randomly, they will update after each test round, to allow the continuous insertion of test data for different conditions.
 				</p>
+				<p>
+					Below you can see the test area. Beneath it you can find various plots that update in real time while data is entered. Data is accumulated in the live plots as long as the test parameters remain unchanged. 
 				
 				<h2>A word of Warning</h2>
 				<p>
-				This test setup is merely for educative and illustrative purposes. This is <strong>not</strong> a controlled experiment, and no defintive truths should be derived from it. It can, however, help in exploring different settings and be a usefull tool for constructing real Fitts' experiments.
+				This test setup is merely for educative and illustrative purposes. This is <strong>not</strong> a controlled experiment, and no definitive truths should be derived from it. It can, however, help in exploring different settings and be a usefull tool for constructing real Fitts' experiments.
 				</p>
 
 			</div>
@@ -72,8 +74,8 @@
 			</div>
 			<div class="grid_4 border sans" style="height: 378px; padding: 10px; width: 278px">				
 				<p>
-					<button id="randomiseButton" type="button">Randomise!</button> 
-					<input type="checkbox" id="randomiseCheckbox" checked /> randomise after round
+					<button id="randomizeButton" type="button">Randomize!</button> 
+					<input type="checkbox" id="randomizeCheckbox" checked /> randomize after round
 				</p>
 				<p>
 					Distance: <span id="sliderDistanceValue"></span>
@@ -130,27 +132,39 @@
 		
 			<div class="prefix_1 grid_7">
 				
-				<p>
-					Cardigan narwhal reprehenderit ethnic, direct trade squid officia. Brooklyn culpa quinoa ex narwhal bicycle rights. Cardigan irony lo-fi iphone in, you probably haven't heard of them gastropub keffiyeh artisan lomo pitchfork post-ironic hella. Raw denim DIY lo-fi godard, sustainable ethnic sed four loko craft beer messenger bag viral next level gastropub. Dolor vegan sartorial post-ironic aliquip voluptate. Synth in commodo, scenester post-ironic non single-origin coffee sapiente odio put a bird on it. Retro cliche beard sunt pour-over, leggings american apparel ut ex raw denim.
-				</p>
+				
+				
+				
+				<h2 style="margin-top: 2em;">Evaluating the Test Data</h2>
+				<p>The plots below show different evaluations of the test data. These plots update automatically after an inactivity of 2 seconds. Figure 2 shows a scatter plot of time over effective ID. The effective Index of Difficulty (<strong>IDe</strong>) in is computed as follows:
+
+				<div class="math">
+					<img src="IDe.png" alt="IDe = log2(De/We = + 1)" style="width: 160px;"/>
+				</div>
+				where <strong>De</strong> is the mean distance from start to end point and the effective width <strong>We</strong> is defined as:
+				<div class="math">
+					<img src="We.png" alt="We = 4.133 * sigma" style="width: 120px;" />
+				</div>
+				where σ is the variance of the hit points on the target. We are computing <strong>σ</strong> in the target direction and perpandandicular to it, and then use the 'smaller-of' heuristic (cf. [MacKenzie and Buxton 1992, Soukoreff and Mackenzie 2004]).
+				</p>	
 				
 				<div id="scatterEffective" class="sans"></div>
 				<p class="caption">
 					fig. 2: Time in ms over effective ID. Only parameter comibnations (distance and width) with at least 3 samples are shown.
-				</p>
-
-				<p>
-					Cardigan narwhal reprehenderit ethnic, direct trade squid officia. Brooklyn culpa quinoa ex narwhal bicycle rights. Cardigan irony lo-fi iphone in, you probably haven't heard of them gastropub keffiyeh artisan lomo pitchfork post-ironic hella. Raw denim DIY lo-fi godard, sustainable ethnic sed four loko craft beer messenger bag viral next level gastropub. Dolor vegan sartorial post-ironic aliquip voluptate. Synth in commodo, scenester post-ironic non single-origin coffee sapiente odio put a bird on it. Retro cliche beard sunt pour-over, leggings american apparel ut ex raw denim.
 				</p>
 				
 				<div id="throughput" class="sans"></div>
 				<p class="caption">
 					fig. 3: Histogram of effective throughput. Individual histograms for each data set are scaled to their respective maximum frequency.
 				</p>
-				
+
+
 				<p>
-					Cardigan narwhal reprehenderit ethnic, direct trade squid officia. Brooklyn culpa quinoa ex narwhal bicycle rights. Cardigan irony lo-fi iphone in, you probably haven't heard of them gastropub keffiyeh artisan lomo pitchfork post-ironic hella. Raw denim DIY lo-fi godard, sustainable ethnic sed four loko craft beer messenger bag viral next level gastropub. Dolor vegan sartorial post-ironic aliquip voluptate. Synth in commodo, scenester post-ironic non single-origin coffee sapiente odio put a bird on it. Retro cliche beard sunt pour-over, leggings american apparel ut ex raw denim.
+					Figure 3 shows a histogram of the throughput for each dataset. Throughput is computed as <strong>IDe/movement time</strong> and therefore has the unit <strong>bits/second</strong>. Throughput and its distribution can be one of the indicators of a device's performance. To make an encompassing assessment further metrices have to be used like error rate, and overall user comfort and user satisfaction.
 				</p>
+				
+				
+				<h2>Analysing Movement Path and Speed</h2>
 				</div>
 				
 				<div class="grid_7 prefix_1">
@@ -164,31 +178,36 @@
 						fig. 5: Movement speed in px/ms over time in ms.
 					</p>
 				</div>
-				<!-- <div class="grid_4 border sans" style="width: 278px; height: 412px; padding: 10px">
-					<p>
-						Select a test configuration to be shown.
-						<select id="effFilter">
-							<option>---</option>
-						</select>
-					</p>
-				</div> -->
 					
 				<div class="prefix_1 grid_7">
+					<p>
+						The following two figures illustrate the mouse's movement path and speed during the test. In figure 4 All data is anchored in the start position of each trial. The positional movement data is projected onto the target vector, to make comparisions over all approach directions easy. 
+					</p>
+					<p>
+						Figure 5 finally shows the movement sped in pixel per ms over the movement time. Analysing the user's movements beyond Fitts' law can yield additional insights into different qualities of various input devices. For the sake of completeness and contrast we'd like to exemplary refer to [Bootsma et al. 2004].
+					</p>
 					
 				<h2>References</h2>
 				<p>
-					Fitts, P. M. (1954). The information capacity of the human motor system in controlling the amplitude of movement. Journal of Experimental Psychology, 47(6), 381-391. doi:10.1037/h0055392
-				</p>
-				<p> MacKenzie, I. S., & Buxton, W. (1992). Extending Fitts' law to two-dimensional tasks. Proceedings of the SIGCHI conference on Human factors in computing systems CHI 92, p, 219-226. ACM Press. doi:10.1145/142750.142794
+					<strong>Fitts, P. M. (1954)</strong>. The information capacity of the human motor system in controlling the amplitude of movement. Journal of Experimental Psychology, 47(6), 381-391. doi:10.1037/h0055392
 				</p>
 				<p>
-					ISO. (2000). Ergonomic requirements for office work with visual display terminals (VDTs) - Requirements for non-keyboard input devices. ISO 92419. International Organization of Standardization.
+					<strong>MacKenzie, I. S., & Buxton, W. (1992)</strong>. Extending Fitts' law to two-dimensional tasks. Proceedings of the SIGCHI conference on Human factors in computing systems CHI 92, p, 219-226. ACM Press. doi:10.1145/142750.142794
 				</p>
 				<p>
-					Soukoreff, R., & Mackenzie, I. (2004). Towards a standard for pointing device evaluation, perspectives on 27 years of Fitts? law research in HCI. International Journal of Human-Computer Studies, 61(6), 751-789. Elsevier. doi:10.1016/j.ijhcs.2004.09.001
+					<strong>ISO. (2000)</strong>. Ergonomic requirements for office work with visual display terminals (VDTs) - Requirements for non-keyboard input devices. ISO 92419. International Organization of Standardization.
 				</p>
+				<p>
+					<strong>Soukoreff, R., & Mackenzie, I. (2004)</strong>. Towards a standard for pointing device evaluation, perspectives on 27 years of Fitts? law research in HCI. International Journal of Human-Computer Studies, 61(6), 751-789. Elsevier. doi:10.1016/j.ijhcs.2004.09.001
+				</p>
+				<p>
+					<strong>Bootsma, R. J., Fernandez, L., & Mottet, D. (2004)</strong>. Behind Fitts' law: kinematic patterns in goal-directed movements. International Journal of Human-Computer Studies, 61(6), 811-821. doi:10.1016/j.ijhcs.2004.09.004
+					</p>
 
-				
+				<h2>Feedback</h2>
+				<p>
+					There is quite some room for improvement and we'd love to hear your feedback and comments. You can most compfortly adress them to Simon via <a href="mailto:me@simonwallner.at">email</a>.
+				</p>
 				<h2>License</h2>
 				<p>
 					This project is licensed under the permissive <strong>MIT license</strong>, The full source is availble on <a href="https://github.com/SimonWallner/uit-fitts-law">github</a>

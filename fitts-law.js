@@ -110,7 +110,7 @@ var fittsTest = {
 	currentCount: 0,
 	miss: 0,
 	isoLimits: {minD: 120, maxD: 300, minW:10 , maxW: 100},
-	isoParams: {num: 9, distance: 200, width: 50, randomise: true},
+	isoParams: {num: 9, distance: 200, width: 50, randomize: true},
 	
 	currentPath: [],
 	active: false,
@@ -236,8 +236,8 @@ var fittsTest = {
 							   hit: {x: x, y: y, t: (new Date).getTime()}});
 			this.removeTarget();
 
-			if (this.isoParams.randomise && this.currentCount >= this.isoPositions.length) {
-				this.randomiseParams();
+			if (this.isoParams.randomize && this.currentCount >= this.isoPositions.length) {
+				this.randomizeParams();
 				this.currentCount = 0;
 				this.currentPosition = 0;
 				this.miss = 0;
@@ -396,7 +396,7 @@ var fittsTest = {
 		}
 	},
 	
-	randomiseParams: function() {
+	randomizeParams: function() {
 		this.isoParams.distance = Math.floor(randomAB(this.isoLimits.minD, this.isoLimits.maxD));
 		this.isoParams.width = Math.floor(randomAB(this.isoLimits.minW, this.isoLimits.maxW));
 
@@ -1163,8 +1163,8 @@ $("#sliderDistance").slider({
 		fittsTest.isoParams.distance = ui.value;
 		fittsTest.updateISOCircles();
 		d3.select('#sliderDistanceValue').text(ui.value);
-		$('#randomiseCheckbox').attr('checked', false);
-		fittsTest.isoParams.randomise = false;
+		$('#randomizeCheckbox').attr('checked', false);
+		fittsTest.isoParams.randomize = false;
 	}
 });
 
@@ -1177,19 +1177,19 @@ $("#sliderWidth").slider({
 		fittsTest.isoParams.width = ui.value;
 		fittsTest.updateISOCircles();
 		d3.select('#sliderWidthValue').text(ui.value);
-		$('#randomiseCheckbox').attr('checked', false);
-		fittsTest.isoParams.randomise = false;
+		$('#randomizeCheckbox').attr('checked', false);
+		fittsTest.isoParams.randomize = false;
 	}
 });
 
-$('#randomiseButton').click(function() {
-	fittsTest.randomiseParams();
-	$('#randomiseCheckbox').attr('checked', true);
-	fittsTest.isoParams.randomise = true;
+$('#randomizeButton').click(function() {
+	fittsTest.randomizeParams();
+	$('#randomizeCheckbox').attr('checked', true);
+	fittsTest.isoParams.randomize = true;
 });
 
-$('#randomiseCheckbox').change(function(event) {
-	fittsTest.isoParams.randomise = $(this).attr('checked');
+$('#randomizeCheckbox').change(function(event) {
+	fittsTest.isoParams.randomize = $(this).attr('checked');
 })
 
 $('#addDataSetButton').click(function() {

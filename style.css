@@ -18,7 +18,7 @@ h1 {
 
 h2 {
 	display: block;
-	font-size: 1.5em;
+	font-size: 1.3333333em;
 	font-family: 'Open Sans';
 	font-weight: 700;
 	margin-bottom: 0.3333333em;
@@ -109,10 +109,7 @@ div.msg {
 }
 
 div.math {
-	margin-top: -15px;
-	margin-bottom: 10px;
-	margin-left: 20px;
-	font-size: 1.2em;
+	padding: 20px;
 }
 
 
