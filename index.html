@@ -44,7 +44,7 @@
 					where <strong>A</strong> is the task's amplitude or distance, <strong>W</strong> is the target's width, and the resulting <strong>ID</strong> is the aforementioned <strong>Index of Difficulty</strong>.
 				</p>
 				<p>
-					From this formula we can see that the task gets harder, the farther away the target is and the smaller it is. This fits well with the common perception of such tasks and, as it turns out, the time it takes to perform such a task is highly correlated with the ID.
+					From this formula we can see that the task gets harder, the farther away the target is and the smaller it is. This fits well with the common perception of such tasks and, as it turns out, the time it takes to perform such a task is linearly correlated with its ID.
 				</p>
 				
 				<h2>The Test</h2>
@@ -52,7 +52,7 @@
 					Below you can find an interactive Fitts' test. The test is laid out according to the recommendations found in [Soukoreff and Mackenzie 2004]. It should also follow the ISO standard [ISO 9241-9] which unforteunalty was unavailable to us at the time of writing.
 				</p>
 				<p>
-					The test setup allows for multiple data sets to be created (.e.g. to compare different input devices) and the test parameters <strong>distance</strong> and <strong>width</strong> can be adjusted. If parameters are set randomly, they will update after each test round, to allow the continuous insertion of test data for different conditions.
+					The test setup allows for multiple data sets to be created (.e.g. to compare different input devices or parameters) and the test parameters <strong>distance</strong> and <strong>width</strong> can be adjusted. If parameters are set randomly, they will update after each test round, to allow for the continuous insertion of test data for different conditions.
 				</p>
 				<p>
 					Below you can see the test area. Beneath it you can find various plots that update in real time while data is entered. Data is accumulated in the live plots as long as the test parameters remain unchanged. 
@@ -145,12 +145,12 @@
 				<div class="math">
 					<img src="We.png" alt="We = 4.133 * sigma" style="width: 120px;" />
 				</div>
-				where σ is the variance of the hit points on the target. We are computing <strong>σ</strong> in the target direction and perpandandicular to it, and then use the 'smaller-of' heuristic (cf. [MacKenzie and Buxton 1992, Soukoreff and Mackenzie 2004]).
+				where <strong>σ</strong> is the standard deviation of the hit points on the target. We are computing <strong>σ</strong> in the target direction and perpendicular to it, and then use the 'smaller-of' heuristic (cf. [MacKenzie and Buxton 1992, Soukoreff and Mackenzie 2004]).
 				</p>	
 				
 				<div id="scatterEffective" class="sans"></div>
 				<p class="caption">
-					fig. 2: Time in ms over effective ID. Only parameter comibnations (distance and width) with at least 3 samples are shown.
+					fig. 2: Time in ms over effective ID. Only parameter combinations (distance and width) with at least 3 samples are shown.
 				</p>
 				
 				<div id="throughput" class="sans"></div>
@@ -160,7 +160,7 @@
 
 
 				<p>
-					Figure 3 shows a histogram of the throughput for each dataset. Throughput is computed as <strong>IDe/movement time</strong> and therefore has the unit <strong>bits/second</strong>. Throughput and its distribution can be one of the indicators of a device's performance. To make an encompassing assessment further metrices have to be used like error rate, and overall user comfort and user satisfaction.
+					Figure 3 shows a histogram of the throughput for each dataset. Throughput is computed as <strong>IDe/movement time</strong> and therefore has the unit <strong>bits/second</strong>. Throughput and its distribution can be one of the indicators of a device's performance. To make an encompassing assessment further metrics have to be used like error rate, and overall user comfort and user satisfaction.
 				</p>
 				
 				
@@ -170,7 +170,7 @@
 				<div class="grid_7 prefix_1">
 					<div id="positionEffective" class="sans"></div>
 					<p class="caption">
-						fig. 4: Deviation form straigh path over path distance in px.
+						fig. 4: Deviation form straight path over path distance in px.
 					</p>
 					
 					<div id="speedEffective" class="sans"></div>
@@ -181,7 +181,7 @@
 					
 				<div class="prefix_1 grid_7">
 					<p>
-						The following two figures illustrate the mouse's movement path and speed during the test. In figure 4 All data is anchored in the start position of each trial. The positional movement data is projected onto the target vector, to make comparisions over all approach directions easy. 
+						The following two figures illustrate the mouse's movement path and speed during the test. In figure 4 All data is anchored in the start position of each trial. The positional movement data is projected onto the target vector, to make comparisons over all approach directions easy. 
 					</p>
 					<p>
 						Figure 5 finally shows the movement sped in pixel per ms over the movement time. Analysing the user's movements beyond Fitts' law can yield additional insights into different qualities of various input devices. For the sake of completeness and contrast we'd like to exemplary refer to [Bootsma et al. 2004].
@@ -206,7 +206,12 @@
 
 				<h2>Feedback</h2>
 				<p>
-					There is quite some room for improvement and we'd love to hear your feedback and comments. You can most compfortly adress them to Simon via <a href="mailto:me@simonwallner.at">email</a>.
+					There is quite some room for improvement and we'd love to hear your feedback and comments. You can most comfortly address them to Simon via <a href="mailto:me@simonwallner.at">email</a>.
+				</p>
+				
+				<h2>Acknowledgements</h2>
+				<p>
+					This interactive experiment was created as part of an assignment for the <strong>User Interface Technologies</strong> course at the <strong>University of Copenhagen</strong> in spring 2012. Group Members: Simon Wallner, Trine Eilersen, Otilia Danet and Jesper Tved.
 				</p>
 				<h2>License</h2>
 				<p>
