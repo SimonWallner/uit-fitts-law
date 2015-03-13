@@ -2,14 +2,14 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-		<title>Visualising Fitts' Law</title>
+		<title>Visualising Fitts's Law</title>
 		<script type="text/javascript" src="d3/d3.v2.js"></script>
 		<script type="text/javascript" src="d3/lib/jquery/jquery.min.js"></script>
 	    <script type="text/javascript" src="d3/lib/jquery-ui/jquery-ui.min.js"></script>
 
 		<link href='http://fonts.googleapis.com/css?family=Ovo' rel='stylesheet' type='text/css'>
-		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>				
-	
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>
+
 		<link type="text/css" rel="stylesheet" href="reset.css"/>
 		<link type="text/css" rel="stylesheet" href="960_12_col.css"/>
 		<link type="text/css" rel="stylesheet" href="style.css"/>
@@ -17,71 +17,71 @@
 	<body>
 		<!-- fork me on github -->
 		<a href="https://github.com/SimonWallner/uit-fitts-law"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
-		
-		
+
+
 		<div class="container_12">
-			<h1 class="prefix_1 grid_9">An Interactive Visualisation of <strong>Fitts' Law</strong> with Javascript and <strong>D3</strong></h1>
+			<h1 class="prefix_1 grid_9">An Interactive Visualisation of <strong>Fitts's Law</strong> with JavaScript and <strong>D3</strong></h1>
 			<div class="prefix_1 grid_7">
 				<p>
-					Fitts's Law is one of the corner stones of user interface research. Published in 1954, Fitts described the relation between the target distance, width and time needed for a target acquisition task, which later became known as <strong>Fitts' law</strong> [Fitts 1954].
+					Fitts's Law is one of the cornerstones of user interface research. In 1954, Fitts described the relationship between the target distance, width, and time needed for a target acquisition task. This later became known as <strong>Fitts's law</strong> [Fitts 1954].
 				</p>
 				<p>
-					This interactive illustration of the Fitts' test should serve as an introduction to Fitts' law as well as visualise details not directly covered by it, to give further insights into motion in 2D target acquisition tasks.
+					This interactive illustration of Fitts's test should serve as an introduction to Fitts' law.  It can also help the reader to visualise details not directly covered by the law and give further insights into motion in 2D target acquisition tasks.
 				</p>
 				<p class="note">
 					We recomend a modern browser and fast computer to run the interactive tests. We developed on Safari and Chrome, so support for other modern browsers is likely but not guaranteed.
 				</p>
-				
-				<h2>Fitts' Law</h2>
+
+				<h2>Fitts's Law</h2>
 				<p>
-					For a given target acquisition task, e.g. move the mouse to a certain point in the UI of an application and select it, Fitts' law desribes how the distance from start point to the target and the width of the target influence the index of difficulty (ID) of the task.
+					For a given target acquisition task, e.g. move the mouse to a certain point in the UI of an application and select it, Fitts's law desribes how the distance from start point to the target and the width of the target influence the index of difficulty (ID) of the task.
 				</p>
 				<p>
 					The law (in the Shannon formulation [MacKenzie and Buxton 1992]) states that
 				<div class="math">
-					<img src="shannon.png" style="width: 160px" alt="Shannon Formulation of the Fitts' law" />
+					<img src="shannon.png" style="width: 160px" alt="Shannon Formulation of the Fitts's law" />
 				</div>
 					where <strong>A</strong> is the task's amplitude or distance, <strong>W</strong> is the target's width, and the resulting <strong>ID</strong> is the aforementioned <strong>Index of Difficulty</strong>.
 				</p>
 				<p>
-					From this formula we can see that the task gets harder, the farther away the target is and the smaller it is. This fits well with the common perception of such tasks and, as it turns out, the time it takes to perform such a task is linearly correlated with its ID.
+					From this formula we can see that the task gets harder, the farther away the target is and the smaller it is. This fits well with the common perception of such tasks. As it turns out, the time it takes to perform such a task is linearly correlated with its ID.
 				</p>
-				
+
 				<h2>The Test</h2>
 				<p>
-					Below you can find an interactive Fitts' test. The test is laid out according to the recommendations found in [Soukoreff and Mackenzie 2004]. It should also follow the ISO standard [ISO 9241-9] which unforteunalty was unavailable to us at the time of writing.
+					Below you can find an interactive Fitts's test. The test is laid out according to the recommendations found in [Soukoreff and Mackenzie 2004]. It should also follow the ISO standard [ISO 9241-9] which unfortunately was unavailable to us at the time of writing.
 				</p>
 				<p>
-					The test setup allows for multiple data sets to be created (.e.g. to compare different input devices or parameters) and the test parameters <strong>distance</strong> and <strong>width</strong> can be adjusted. If parameters are set randomly, they will update after each test round, to allow for the continuous insertion of test data for different conditions.
+					The test setup allows for multiple data sets to be created (e.g. to compare different input devices or parameters) and the test parameters (<strong>distance</strong> and <strong>width</strong>) can be adjusted. If parameters are set randomly, they will update after each test round, to allow for the continuous insertion of test data for different conditions.
 				</p>
 				<p>
-					Below you can see the test area. Beneath it you can find various plots that update in real time while data is entered. Data is accumulated in the live plots as long as the test parameters remain unchanged. 
-				
+					Below you can see the test area. Beneath it you can find various plots that update in real time while data is entered. Data is accumulated in the live plots as long as the test parameters remain unchanged.
+
 				<h2>A word of Warning</h2>
 				<p>
-				This test setup is merely for educative and illustrative purposes. This is <strong>not</strong> a controlled experiment, and no definitive truths should be derived from it. It can, however, help in exploring different settings and be a usefull tool for constructing real Fitts' experiments.
+				This test setup is merely for educative and illustrative purposes. This is <strong>not</strong> a controlled experiment, and no definitive truths should be derived from it. It can, however, help in exploring different settings and be a usefull tool for constructing real Fitts's experiments.
 				</p>
 
 			</div>
-		
+
 			<div class="clear"></div>
-			
+
 			<div class="grid_8">
 				<div id="test-area" class="sans"></div>
 				<p class="caption">
-					fig. 1a: Test Area: Try to click the red circle as fast as possible but at the same time try to avoid errors. 
+					fig. 1a: Test Area: Try to click the red circle as fast as possible but at the same time try to avoid errors.
 				</p>
 			</div>
-			<div class="grid_4 border sans" style="height: 378px; padding: 10px; width: 278px">				
+			<div class="grid_4 border sans" style="height: 378px; padding: 10px; width: 278px">
 				<p>
-					<button id="randomizeButton" type="button">Randomize!</button> 
+					<button id="randomizeButton" type="button">Randomize!</button>
 					<input type="checkbox" id="randomizeCheckbox" checked /> randomize after round
 				</p>
 				<p>
 					Distance: <span id="sliderDistanceValue"></span>
 					<div id="sliderDistance"></div>
 				</p>
-				
+
 				<p>
 					Width: <span id="sliderWidthValue"></span>
 					<div id="sliderWidth"></div>
@@ -94,19 +94,19 @@
 				</p>
 			</div>
 			<div class="clear"></div>
-			
+
 			<div class="grid_3">
 				 <div id="plot-positions" class="sans"></div>
 				<p class="caption">
-					fig. 1b: Deviation form straigh path over path distance in px.
+					fig. 1b: Deviation form straight path over path distance in px.
 				</p>
 			</div>
-			
+
 			<div class="grid_3">
 				<div id="plot-velocities" class="sans"></div>
 				<p class="caption">
 					fig. 1c: Movement speed in px/ms over time in ms.
-				</p>				
+				</p>
 			</div>
 
 			<div class="grid_3 2ndRow">
@@ -115,7 +115,7 @@
 					fig. 1d: Click position relative to approach direction.
 				</p>
 			</div>
-						
+
 			<div class="grid_3">
 				<div id="plot-scatter" class="sans"></div>
 				<p class="caption">
@@ -123,20 +123,20 @@
 				</p>
 			</div>
 
-			
-			
+
+
 			<div class="clear"></div>
-			
+
 			<div id="data" class="prefix_1 grid_7"></div>
 			<div class="clear"></div>
-		
+
 			<div class="prefix_1 grid_7">
-				
-				
-				
-				
+
+
+
+
 				<h2 style="margin-top: 2em;">Evaluating the Test Data</h2>
-				<p>The plots below show different evaluations of the test data. These plots update automatically after an inactivity of 2 seconds. Figure 2 shows a scatter plot of time over effective ID. The effective Index of Difficulty (<strong>IDe</strong>) in is computed as follows:
+				<p>The plots below show different evaluations of the test data. These plots update automatically after an inactivity of 2 seconds. Figure 2 shows a scatter plot of time over effective ID. The effective Index of Difficulty (<strong>IDe</strong>) is computed as follows:
 
 				<div class="math">
 					<img src="IDe.png" alt="IDe = log2(De/We = + 1)" style="width: 160px;"/>
@@ -146,13 +146,13 @@
 					<img src="We.png" alt="We = 4.133 * sigma" style="width: 120px;" />
 				</div>
 				where <strong>σ</strong> is the standard deviation of the hit points on the target. We are computing <strong>σ</strong> in the target direction and perpendicular to it, and then use the 'smaller-of' heuristic (cf. [MacKenzie and Buxton 1992, Soukoreff and Mackenzie 2004]).
-				</p>	
-				
+				</p>
+
 				<div id="scatterEffective" class="sans"></div>
 				<p class="caption">
 					fig. 2: Time in ms over effective ID. Only parameter combinations (distance and width) with at least 3 samples are shown.
 				</p>
-				
+
 				<div id="throughput" class="sans"></div>
 				<p class="caption">
 					fig. 3: Histogram of effective throughput. Individual histograms for each data set are scaled to their respective maximum frequency.
@@ -160,67 +160,67 @@
 
 
 				<p>
-					Figure 3 shows a histogram of the throughput for each dataset. Throughput is computed as <strong>IDe/movement time</strong> and therefore has the unit <strong>bits/second</strong>. Throughput and its distribution can be one of the indicators of a device's performance. To make an encompassing assessment further metrics have to be used like error rate, and overall user comfort and user satisfaction.
+					Figure 3 shows a histogram of the throughput for each dataset. Throughput is computed as <strong>IDe/movement time</strong> and therefore has the unit <strong>bits/second</strong>. Throughput and its distribution can be one of the indicators of a device's performance. To make an encompassing assessment further metrics have to be used (e.g. error rate, and overall user comfort and user satisfaction).
 				</p>
-				
-				
+
+
 				<h2>Analysing Movement Path and Speed</h2>
 				</div>
-				
+
 				<div class="grid_7 prefix_1">
 					<div id="positionEffective" class="sans"></div>
 					<p class="caption">
 						fig. 4: Deviation form straight path over path distance in px.
 					</p>
-					
+
 					<div id="speedEffective" class="sans"></div>
 					<p class="caption">
 						fig. 5: Movement speed in px/ms over time in ms.
 					</p>
 				</div>
-					
+
 				<div class="prefix_1 grid_7">
 					<p>
-						The following two figures illustrate the mouse's movement path and speed during the test. In figure 4 All data is anchored in the start position of each trial. The positional movement data is projected onto the target vector, to make comparisons over all approach directions easy. 
+						These two figures illustrate the mouse's movement path and speed during the test. In Figure 4 All data is anchored in the start position of each trial. The positional movement data is projected onto the target vector, to make comparisons over all approach directions easy.
 					</p>
 					<p>
-						Figure 5 finally shows the movement sped in pixel per ms over the movement time. Analysing the user's movements beyond Fitts' law can yield additional insights into different qualities of various input devices. For the sake of completeness and contrast we'd like to exemplary refer to [Bootsma et al. 2004].
+						Figure 5 finally shows the movement speed in pixel per ms over the movement time. Analysing the user's movements beyond Fitts's law can yield additional insights into different qualities of various input devices. For the sake of completeness and contrast we would like to refer to [Bootsma et al. 2004].
 					</p>
-					
+
 				<h2>References</h2>
 				<p>
 					<strong>Fitts, P. M. (1954)</strong>. The information capacity of the human motor system in controlling the amplitude of movement. Journal of Experimental Psychology, 47(6), 381-391. doi:10.1037/h0055392
 				</p>
 				<p>
-					<strong>MacKenzie, I. S., & Buxton, W. (1992)</strong>. Extending Fitts' law to two-dimensional tasks. Proceedings of the SIGCHI conference on Human factors in computing systems CHI 92, p, 219-226. ACM Press. doi:10.1145/142750.142794
+					<strong>MacKenzie, I. S., & Buxton, W. (1992)</strong>. Extending Fitts's law to two-dimensional tasks. Proceedings of the SIGCHI conference on Human factors in computing systems CHI 92, p, 219-226. ACM Press. doi:10.1145/142750.142794
 				</p>
 				<p>
 					<strong>ISO. (2000)</strong>. Ergonomic requirements for office work with visual display terminals (VDTs) - Requirements for non-keyboard input devices. ISO 92419. International Organization of Standardization.
 				</p>
 				<p>
-					<strong>Soukoreff, R., & Mackenzie, I. (2004)</strong>. Towards a standard for pointing device evaluation, perspectives on 27 years of Fitts? law research in HCI. International Journal of Human-Computer Studies, 61(6), 751-789. Elsevier. doi:10.1016/j.ijhcs.2004.09.001
+					<strong>Soukoreff, R., & Mackenzie, I. (2004)</strong>. Towards a standard for pointing device evaluation, perspectives on 27 years of Fitts's law research in HCI. International Journal of Human-Computer Studies, 61(6), 751-789. Elsevier. doi:10.1016/j.ijhcs.2004.09.001
 				</p>
 				<p>
-					<strong>Bootsma, R. J., Fernandez, L., & Mottet, D. (2004)</strong>. Behind Fitts' law: kinematic patterns in goal-directed movements. International Journal of Human-Computer Studies, 61(6), 811-821. doi:10.1016/j.ijhcs.2004.09.004
+					<strong>Bootsma, R. J., Fernandez, L., & Mottet, D. (2004)</strong>. Behind Fitts's law: kinematic patterns in goal-directed movements. International Journal of Human-Computer Studies, 61(6), 811-821. doi:10.1016/j.ijhcs.2004.09.004
 					</p>
 
 				<h2>Feedback</h2>
 				<p>
-					There is quite some room for improvement and we'd love to hear your feedback and comments. You can most comfortly address them to Simon via <a href="mailto:me@simonwallner.at">email</a>.
+					There is quite some room for improvement and we'd love to hear your feedback and comments. You can address them to Simon via <a href="mailto:me@simonwallner.at">email</a>.
 				</p>
-				
+
 				<h2>Acknowledgements</h2>
 				<p>
 					This interactive experiment was created as part of an assignment for the <strong>User Interface Technologies</strong> course at the <strong>University of Copenhagen</strong> in spring 2012. Group Members: Simon Wallner, Otilia Danet, Trine Eilersen, and Jesper Tved.
 				</p>
 				<h2>License</h2>
 				<p>
-					This project is licensed under the permissive <strong>MIT license</strong>, The full source is availble on <a href="https://github.com/SimonWallner/uit-fitts-law">github</a>
+					This project is licensed under the permissive <strong>MIT license</strong>, The full source is available on <a href="https://github.com/SimonWallner/uit-fitts-law">GitHub</a>
 				</p>
 			</div>
-			
+
 			<script type="text/javascript" src="fitts-law.js"></script>
-			
+
 		</div> <!-- container12 end -->
 	</body>
 </html>
